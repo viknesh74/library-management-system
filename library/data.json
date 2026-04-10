@@ -1,0 +1,1368 @@
+{
+  "books": [
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndcrxri",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndcrxrw",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndcrxs1",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndcrxsa",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndcrxsg",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndcrxsk",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndcrxsp",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndcrxsu",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndcrxt1",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndcrxt6",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndcrxta",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndcrxtd",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndcrxth",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndcrxtm",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndcrxtq",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndcvzij",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndcvzin",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndcvzis",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndcvziw",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndcvziz",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndcvzj3",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndcvzj6",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndcvzja",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndcvzjd",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndcvzjh",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndcvzjl",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndcvzjq",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndcvzjv",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndcvzk1",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndcvzk7",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd07pz",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd07q4",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd07q9",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd07qd",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd07qj",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd07qq",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd07qv",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd07qz",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd07r4",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd07r8",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd07rd",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd07rg",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd07rk",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd07ro",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd07rr",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd0bma",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd0bmg",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd0bml",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd0bmp",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd0bms",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd0bmv",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd0bmz",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd0bn3",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd0bn7",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd0bna",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd0bne",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd0bnh",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd0bnl",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd0bnq",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd0bnt",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd0i47",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd0i4c",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd0i4g",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd0i4j",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd0i4m",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd0i4q",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd0i4u",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd0i4x",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd0i51",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd0i56",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd0i5b",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd0i5g",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd0i5l",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd0i5q",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd0i5t",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd0nib",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd0nig",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd0nij",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd0nin",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd0nir",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd0nix",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd0nj2",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd0nj7",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd0nja",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd0nje",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd0njh",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd0njk",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd0njn",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd0njt",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd0njw",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd344r",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd344v",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd3450",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd3454",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd3458",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd345f",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd345j",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd345n",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd345q",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd345u",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd345x",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd3461",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd3465",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd3469",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd346c",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd39f1",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd39f5",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd39f8",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd39fc",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd39fg",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd39fl",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd39fq",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd39fu",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd39fx",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd39g1",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd39g4",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd39g6",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd39g9",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd39gc",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd39gg",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd3juo",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd3juw",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd3jv3",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd3jv9",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd3jvf",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd3jvl",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd3jvt",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd3jw5",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd3jwh",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd3jwp",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd3jwz",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd3jx8",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd3jxf",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd3jxk",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd3jxq",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Introduction to Algorithms",
+      "author": "Thomas H. Cormen",
+      "category": "Technology",
+      "description": "A comprehensive textbook on algorithms, covering design, analysis, and implementation techniques.",
+      "total_copies": 6,
+      "book_id": "mndd4uok",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Clean Code",
+      "author": "Robert C. Martin",
+      "category": "Technology",
+      "description": "A handbook of agile software craftsmanship with practical techniques for writing better code.",
+      "total_copies": 4,
+      "book_id": "mndd4uoq",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Great Gatsby",
+      "author": "F. Scott Fitzgerald",
+      "category": "Literature",
+      "description": "A classic American novel exploring themes of wealth, class, love, and the American Dream.",
+      "total_copies": 5,
+      "book_id": "mndd4uox",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Sapiens",
+      "author": "Yuval Noah Harari",
+      "category": "History",
+      "description": "A groundbreaking narrative of humanity's creation and evolution spanning 70,000 years of history.",
+      "total_copies": 4,
+      "book_id": "mndd4up3",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Calculus: Early Transcendentals",
+      "author": "James Stewart",
+      "category": "Mathematics",
+      "description": "Comprehensive coverage of single and multivariable calculus with real-world applications.",
+      "total_copies": 8,
+      "book_id": "mndd4upa",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Physics for Scientists and Engineers",
+      "author": "Serway & Jewett",
+      "category": "Science",
+      "description": "Detailed exploration of classical and modern physics with practical problem-solving.",
+      "total_copies": 5,
+      "book_id": "mndd4upj",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Gray's Anatomy",
+      "author": "Henry Gray",
+      "category": "Medicine",
+      "description": "The definitive anatomical reference, covering the structure of the human body in detail.",
+      "total_copies": 3,
+      "book_id": "mndd4upp",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "The Republic",
+      "author": "Plato",
+      "category": "Philosophy",
+      "description": "Plato's classic dialogue on justice, politics, and the ideal state with the philosopher-king.",
+      "total_copies": 4,
+      "book_id": "mndd4upw",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Principles of Economics",
+      "author": "N. Gregory Mankiw",
+      "category": "Economics",
+      "description": "A clear introduction to the world of economics, covering macro and microeconomic principles.",
+      "total_copies": 6,
+      "book_id": "mndd4uq2",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Criminal Law",
+      "author": "Wayne R. LaFave",
+      "category": "Law",
+      "description": "A thorough treatment of criminal law principles and practices for law students and practitioners.",
+      "total_copies": 3,
+      "book_id": "mndd4uq8",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Digital Electronics",
+      "author": "Morris Mano",
+      "category": "Engineering",
+      "description": "Foundational concepts in digital design, logic gates, flip-flops, and circuit design.",
+      "total_copies": 7,
+      "book_id": "mndd4uqc",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Art History",
+      "author": "Marilyn Stokstad",
+      "category": "Arts",
+      "description": "A comprehensive survey of Western and non-Western art from prehistory to the present day.",
+      "total_copies": 3,
+      "book_id": "mndd4uqf",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Python Crash Course",
+      "author": "Eric Matthes",
+      "category": "Technology",
+      "description": "A hands-on, project-based introduction to programming in Python for complete beginners.",
+      "total_copies": 5,
+      "book_id": "mndd4uqk",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "Organic Chemistry",
+      "author": "Paula Y. Bruice",
+      "category": "Science",
+      "description": "A mechanistic approach to understanding organic chemistry reactions and synthesis.",
+      "total_copies": 4,
+      "book_id": "mndd4uqo",
+      "added_date": "2026-03-30"
+    },
+    {
+      "title": "To Kill a Mockingbird",
+      "author": "Harper Lee",
+      "category": "Literature",
+      "description": "A powerful story of racial injustice and moral growth set in the American South.",
+      "total_copies": 5,
+      "book_id": "mndd4uqt",
+      "added_date": "2026-03-30"
+    }
+  ],
+  "students": [
+    {
+      "name": "vic",
+      "email": "viknesh2599@gmail.com",
+      "department": "Computer Science",
+      "phone": "8220654725",
+      "password": "Viknesh4725",
+      "student_id": "mndcvpca",
+      "role": "student",
+      "joined": "2026-03-30"
+    }
+  ],
+  "transactions": [],
+  "requests": []
+}
