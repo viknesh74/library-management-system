@@ -11,6 +11,8 @@ const db = require('./js/db');   // MySQL pool
 
 // ── Multer (image upload) ──────────────────────────────
 const uploadDir = path.join(__dirname, 'uploads', 'papers');
+const ebookUploadDir = path.join(__dirname, 'uploads', 'ebooks');
+if (!fs.existsSync(ebookUploadDir)) fs.mkdirSync(ebookUploadDir, { recursive: true });
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -31,6 +33,23 @@ const upload = multer({
 // Allow up to 10 files per paper
 const uploadPaperImages = upload.array('images', 10);
 
+// Multer for ebook files (PDF/EPUB/DOC up to 50 MB)
+const ebookStorage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, ebookUploadDir),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + '-' + Math.random().toString(36).slice(2, 7) + ext);
+  }
+});
+const uploadEbook = multer({
+  storage: ebookStorage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
+  fileFilter: (req, file, cb) => {
+    const allowed = /pdf|epub|doc|docx/;
+    cb(null, allowed.test(path.extname(file.originalname).toLowerCase()));
+  }
+}).single('file');
+
 const app = express();
 const PORT = 8080;
 const SECRET_KEY = process.env.JWT_SECRET || 'super_secret_smart_library_key';
@@ -39,6 +58,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/ebooks', express.static(ebookUploadDir));
 
 // ── Helpers ──────────────────────────────────────────────
 const genId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
@@ -112,6 +132,18 @@ async function initDB() {
     image_path VARCHAR(255) NOT NULL,
     sort_order INT DEFAULT 0,
     FOREIGN KEY (paper_id) REFERENCES question_papers(id) ON DELETE CASCADE
+  )`);
+
+  await db.execute(`CREATE TABLE IF NOT EXISTS ebooks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    description TEXT,
+    file_path VARCHAR(255) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_size BIGINT DEFAULT 0,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
 
   // Migrate exam_type column if missing
@@ -519,6 +551,90 @@ app.delete('/api/papers/:id', authenticateJWT, async (req, res) => {
     }
     // CASCADE delete handles paper_images rows
     await db.execute('DELETE FROM question_papers WHERE id=?', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ ok: false, msg: err.message });
+  }
+});
+
+// ══ E-Books ════════════════════════════════════════════════
+
+// GET all ebooks (students & admins)
+app.get('/api/ebooks', authenticateJWT, async (req, res) => {
+  try {
+    const [rows] = await db.query('SELECT * FROM ebooks ORDER BY uploaded_at DESC');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST – upload new ebook (admin only)
+app.post('/api/ebooks', authenticateJWT, (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(403);
+  uploadEbook(req, res, async (err) => {
+    if (err) return res.status(400).json({ ok: false, msg: err.message });
+    const { title, author, category, description } = req.body;
+    if (!title || !author || !category) return res.status(400).json({ ok: false, msg: 'title, author and category are required.' });
+    if (!req.file) return res.status(400).json({ ok: false, msg: 'E-book file is required.' });
+    try {
+      const file_path = '/uploads/ebooks/' + req.file.filename;
+      const file_name = req.file.originalname;
+      const file_size = req.file.size;
+      const [result] = await db.execute(
+        'INSERT INTO ebooks (title, author, category, description, file_path, file_name, file_size) VALUES (?,?,?,?,?,?,?)',
+        [title, author, category, description || '', file_path, file_name, file_size]
+      );
+      res.status(201).json({ ok: true, id: result.insertId, title, author, category, description, file_path, file_name, file_size });
+    } catch (dbErr) {
+      res.status(500).json({ ok: false, msg: dbErr.message });
+    }
+  });
+});
+
+// PUT – update ebook metadata (admin only, optionally replace file)
+app.put('/api/ebooks/:id', authenticateJWT, (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(403);
+  uploadEbook(req, res, async (err) => {
+    if (err) return res.status(400).json({ ok: false, msg: err.message });
+    const { title, author, category, description } = req.body;
+    const id = req.params.id;
+    try {
+      if (req.file) {
+        // Delete old file
+        const [rows] = await db.execute('SELECT file_path FROM ebooks WHERE id=?', [id]);
+        if (rows.length && rows[0].file_path) {
+          const old = path.join(__dirname, rows[0].file_path);
+          if (fs.existsSync(old)) fs.unlinkSync(old);
+        }
+        const file_path = '/uploads/ebooks/' + req.file.filename;
+        await db.execute(
+          'UPDATE ebooks SET title=?,author=?,category=?,description=?,file_path=?,file_name=?,file_size=? WHERE id=?',
+          [title, author, category, description || '', file_path, req.file.originalname, req.file.size, id]
+        );
+      } else {
+        await db.execute(
+          'UPDATE ebooks SET title=?,author=?,category=?,description=? WHERE id=?',
+          [title, author, category, description || '', id]
+        );
+      }
+      res.json({ ok: true });
+    } catch (dbErr) {
+      res.status(500).json({ ok: false, msg: dbErr.message });
+    }
+  });
+});
+
+// DELETE – remove ebook and its file (admin only)
+app.delete('/api/ebooks/:id', authenticateJWT, async (req, res) => {
+  if (req.user.role !== 'admin') return res.sendStatus(403);
+  try {
+    const [rows] = await db.execute('SELECT file_path FROM ebooks WHERE id=?', [req.params.id]);
+    if (rows.length && rows[0].file_path) {
+      const filePath = path.join(__dirname, rows[0].file_path);
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+    await db.execute('DELETE FROM ebooks WHERE id=?', [req.params.id]);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ ok: false, msg: err.message });

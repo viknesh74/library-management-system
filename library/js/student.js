@@ -13,6 +13,7 @@ function buildStudentLayout(activeSection, content) {
     { id: 'books', icon: '📚', label: 'My Books', route: 'my-books' },
     { id: 'search', icon: '🔍', label: 'Search', route: 'book-search' },
     { id: 'history', icon: '🕒', label: 'History', route: 'borrow-history' },
+    { id: 'ebooks', icon: '📖', label: 'E-Books', route: 'student-ebooks' },
     { id: 'profile', icon: '👤', label: 'Profile', route: 'student-profile' },
     { id: 'motivation', icon: '💡', label: 'Motivation', route: 'motivation-videos' },
     { id: 'papers', icon: '📝', label: 'Question Papers', route: 'student-question-papers' },
@@ -175,6 +176,11 @@ function renderStudentDashboard() {
             <div class="stile-val">${DB.getPapers().length}</div>
             <div class="stile-label">QP Papers</div>
           </div>
+          <div class="stat-tile stat-teal" id="qcEbooks">
+            <div class="stile-icon">📖</div>
+            <div class="stile-val" id="ebookCountTile">…</div>
+            <div class="stile-label">E-Books</div>
+          </div>
           <div class="stat-tile stat-blue" id="qcMotivation">
             <div class="stile-icon">💡</div>
             <div class="stile-val">6</div>
@@ -234,9 +240,18 @@ function renderStudentDashboard() {
   document.getElementById('qcMyBooks').onclick = () => Router.navigate('my-books');
   document.getElementById('qcHistory').onclick = () => Router.navigate('borrow-history');
   document.getElementById('qcPapers').onclick = () => Router.navigate('student-question-papers');
+  document.getElementById('qcEbooks').onclick = () => Router.navigate('student-ebooks');
   document.getElementById('qcMotivation').onclick = () => Router.navigate('motivation-videos');
   const _sB = document.getElementById('seeAllBooks'); if (_sB) _sB.onclick = () => Router.navigate('my-books');
   const _sS = document.getElementById('seeAllSearch'); if (_sS) _sS.onclick = () => Router.navigate('book-search');
+
+  // Async ebook count
+  fetch('/api/ebooks', { headers: { 'Authorization': `Bearer ${DB.getToken()}` } })
+    .then(r => r.json())
+    .then(data => {
+      const el = document.getElementById('ebookCountTile');
+      if (el) el.textContent = Array.isArray(data) ? data.length : 0;
+    }).catch(() => {});
 
   document.querySelectorAll('.book-tile').forEach(el => {
     el.onclick = () => Router.navigate('book-details', { book_id: el.dataset.bookid });
@@ -1020,4 +1035,170 @@ function renderPaperView({ code, title, images }) {
       th.onclick = () => goTo(parseInt(th.dataset.idx));
     });
   }
+}
+
+// ── E-Books Screen ────────────────────
+async function renderEbooks() {
+  // Show loading skeleton first
+  buildStudentLayout('ebooks', `
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <h2>📖 E-Books Library</h2>
+        <p>Loading e-books…</p>
+      </div>
+      <div style="text-align:center;padding:3rem 0;color:var(--text-mod);">⏳ Loading…</div>
+    </div>`);
+
+  // Fetch ebooks from API
+  let ebooks = [];
+  try {
+    const res = await fetch('/api/ebooks', {
+      headers: { 'Authorization': `Bearer ${DB.getToken()}` }
+    });
+    ebooks = await res.json();
+    if (!Array.isArray(ebooks)) ebooks = [];
+  } catch (e) { ebooks = []; }
+
+  // Derive unique categories
+  const cats = ['All', ...new Set(ebooks.map(e => e.category).filter(Boolean))].sort((a, b) => a === 'All' ? -1 : a.localeCompare(b));
+
+  function fmtSize(bytes) {
+    if (!bytes) return '';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function fileIcon(name) {
+    if (!name) return '📄';
+    const ext = name.split('.').pop().toLowerCase();
+    if (ext === 'pdf') return '📕';
+    if (ext === 'epub') return '📗';
+    if (ext === 'docx' || ext === 'doc') return '📘';
+    return '📄';
+  }
+
+  function fileTypeBadge(name) {
+    const ext = (name || '').split('.').pop().toUpperCase();
+    const colors = { PDF: '#EB5757', EPUB: '#27AE60', DOCX: '#2F80ED', DOC: '#2F80ED' };
+    const bg = colors[ext] || '#607D8B';
+    return `<span style="background:${bg};color:#fff;font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.5px;">${ext}</span>`;
+  }
+
+  const ebookGrad = (cat) => {
+    const g = {
+      Science: 'linear-gradient(135deg,#1a6b3a,#27AE60)',
+      Technology: 'linear-gradient(135deg,#1565C0,#2F80ED)',
+      Engineering: 'linear-gradient(135deg,#5D4037,#8D6E63)',
+      Mathematics: 'linear-gradient(135deg,#6A1B9A,#9C27B0)',
+      Literature: 'linear-gradient(135deg,#BF360C,#FF7043)',
+      History: 'linear-gradient(135deg,#827717,#F9A825)',
+      Philosophy: 'linear-gradient(135deg,#4A148C,#7B1FA2)',
+      Arts: 'linear-gradient(135deg,#880E4F,#E91E63)',
+      Medicine: 'linear-gradient(135deg,#B71C1C,#EB5757)',
+      Law: 'linear-gradient(135deg,#1B5E20,#388E3C)',
+      Economics: 'linear-gradient(135deg,#0D47A1,#1976D2)',
+    };
+    return g[cat] || 'linear-gradient(135deg,#00695c,#26a69a)';
+  };
+
+  function renderCards(list) {
+    if (!list.length) {
+      return `<div style="text-align:center;padding:3rem 0;">
+        <div style="font-size:3rem;">📚</div>
+        <p style="color:var(--text-mod);margin-top:1rem;">No e-books found.</p>
+      </div>`;
+    }
+    return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1.25rem;margin-top:1.25rem;">
+      ${list.map(eb => `
+        <div class="ebook-card" data-path="${eb.file_path}" data-name="${(eb.file_name||'').replace(/"/g,'&quot;')}"
+          style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;
+                 box-shadow:0 4px 16px rgba(0,0,0,0.07);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer;"
+          onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 10px 28px rgba(0,0,0,0.13)'"
+          onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(0,0,0,0.07)'">
+          <!-- Cover -->
+          <div style="height:110px;background:${ebookGrad(eb.category)};display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative;">
+            ${fileIcon(eb.file_name)}
+            <span style="position:absolute;top:10px;right:10px;">${fileTypeBadge(eb.file_name)}</span>
+          </div>
+          <!-- Info -->
+          <div style="padding:1rem;flex:1;display:flex;flex-direction:column;gap:0.35rem;">
+            <div style="font-weight:700;font-size:1rem;line-height:1.35;color:var(--text);">${eb.title}</div>
+            <div style="font-size:0.85rem;color:var(--text-mod);">✍️ ${eb.author}</div>
+            <div style="font-size:0.78rem;background:rgba(47,128,237,0.1);color:var(--primary);padding:2px 8px;border-radius:10px;display:inline-block;margin-top:2px;width:fit-content;">${eb.category}</div>
+            ${eb.description ? `<div style="font-size:0.82rem;color:var(--text-mod);margin-top:4px;line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${eb.description}</div>` : ''}
+            <div style="font-size:0.78rem;color:var(--text-mod);margin-top:auto;padding-top:0.5rem;">${fmtSize(eb.file_size)}</div>
+          </div>
+          <!-- Actions -->
+          <div style="display:flex;gap:0.5rem;padding:0.75rem 1rem;border-top:1px solid var(--border);">
+            <a href="${eb.file_path}" target="_blank" rel="noopener"
+              style="flex:1;text-align:center;padding:0.45rem;border-radius:8px;font-size:0.85rem;font-weight:600;
+                     background:rgba(47,128,237,0.12);color:var(--primary);text-decoration:none;transition:background 0.2s;"
+              onmouseover="this.style.background='rgba(47,128,237,0.22)'" onmouseout="this.style.background='rgba(47,128,237,0.12)'">
+              👁 Read
+            </a>
+            <a href="${eb.file_path}" download="${eb.file_name || 'ebook'}"
+              style="flex:1;text-align:center;padding:0.45rem;border-radius:8px;font-size:0.85rem;font-weight:600;
+                     background:rgba(39,174,96,0.12);color:#27AE60;text-decoration:none;transition:background 0.2s;"
+              onmouseover="this.style.background='rgba(39,174,96,0.22)'" onmouseout="this.style.background='rgba(39,174,96,0.12)'">
+              ⬇ Download
+            </a>
+          </div>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  const content = `
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <h2>📖 E-Books Library</h2>
+        <p>${ebooks.length} e-book${ebooks.length !== 1 ? 's' : ''} available</p>
+      </div>
+      <div class="screen-body" style="padding:0;">
+        <!-- Search -->
+        <div class="search-bar-wrap" style="margin-bottom:1rem;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="ebookSearch" placeholder="Search title or author…"/>
+          <button class="clear-btn" id="ebookClearSearch" style="display:none;">✕</button>
+        </div>
+        <!-- Category chips -->
+        <div class="category-scroll" id="ebookCatScroll">
+          ${cats.map(c => `<button class="cat-chip ${c === 'All' ? 'active' : ''}" data-cat="${c}">${c === 'All' ? '📚 All' : c}</button>`).join('')}
+        </div>
+        <!-- Cards container -->
+        <div id="ebookList">${renderCards(ebooks)}</div>
+      </div>
+    </div>`;
+
+  buildStudentLayout('ebooks', content);
+
+  // Filter logic
+  let query = '', selCat = 'All';
+  function applyFilter() {
+    const q = query.toLowerCase();
+    const filtered = ebooks.filter(eb => {
+      const matchCat = selCat === 'All' || eb.category === selCat;
+      const matchQ = !q || (eb.title || '').toLowerCase().includes(q) || (eb.author || '').toLowerCase().includes(q);
+      return matchCat && matchQ;
+    });
+    document.getElementById('ebookList').innerHTML = renderCards(filtered);
+  }
+
+  const searchEl = document.getElementById('ebookSearch');
+  const clearEl  = document.getElementById('ebookClearSearch');
+  searchEl.oninput = () => {
+    query = searchEl.value.trim();
+    clearEl.style.display = query ? 'flex' : 'none';
+    applyFilter();
+  };
+  clearEl.onclick = () => { query = ''; searchEl.value = ''; clearEl.style.display = 'none'; applyFilter(); };
+
+  document.getElementById('ebookCatScroll').querySelectorAll('.cat-chip').forEach(chip => {
+    chip.onclick = () => {
+      document.querySelectorAll('#ebookCatScroll .cat-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      selCat = chip.dataset.cat;
+      applyFilter();
+    };
+  });
 }

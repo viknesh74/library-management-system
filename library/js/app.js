@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Router.register('motivation-videos', renderMotivationVideos);
   Router.register('student-question-papers', renderQuestionPapers);
   Router.register('view-paper', renderPaperView);
+  Router.register('student-ebooks', renderEbooks);
 
   Router.register('admin-dashboard', renderAdminDashboard);
   Router.register('admin-books', renderAdminBooks);
