@@ -14,6 +14,7 @@ function buildStudentLayout(activeSection, content) {
     { id: 'search', icon: '🔍', label: 'Search', route: 'book-search' },
     { id: 'history', icon: '🕒', label: 'History', route: 'borrow-history' },
     { id: 'ebooks', icon: '📖', label: 'E-Books', route: 'student-ebooks' },
+    { id: 'cgpa', icon: '🎯', label: 'CGPA Calc', route: 'cgpa-calculator' },
     { id: 'profile', icon: '👤', label: 'Profile', route: 'student-profile' },
     { id: 'motivation', icon: '💡', label: 'Motivation', route: 'motivation-videos' },
     { id: 'papers', icon: '📝', label: 'Question Papers', route: 'student-question-papers' },
@@ -181,6 +182,11 @@ function renderStudentDashboard() {
             <div class="stile-val" id="ebookCountTile">…</div>
             <div class="stile-label">E-Books</div>
           </div>
+          <div class="stat-tile stat-indigo" id="qcCGPA">
+            <div class="stile-icon">🎯</div>
+            <div class="stile-val">GPA</div>
+            <div class="stile-label">CGPA Calc</div>
+          </div>
           <div class="stat-tile stat-blue" id="qcMotivation">
             <div class="stile-icon">💡</div>
             <div class="stile-val">6</div>
@@ -241,6 +247,7 @@ function renderStudentDashboard() {
   document.getElementById('qcHistory').onclick = () => Router.navigate('borrow-history');
   document.getElementById('qcPapers').onclick = () => Router.navigate('student-question-papers');
   document.getElementById('qcEbooks').onclick = () => Router.navigate('student-ebooks');
+  document.getElementById('qcCGPA').onclick = () => Router.navigate('cgpa-calculator');
   document.getElementById('qcMotivation').onclick = () => Router.navigate('motivation-videos');
   const _sB = document.getElementById('seeAllBooks'); if (_sB) _sB.onclick = () => Router.navigate('my-books');
   const _sS = document.getElementById('seeAllSearch'); if (_sS) _sS.onclick = () => Router.navigate('book-search');
@@ -1201,4 +1208,267 @@ async function renderEbooks() {
       applyFilter();
     };
   });
+}
+
+// ── CGPA Calculator ───────────────────
+function renderCGPACalculator() {
+  const GRADE_MAP = [
+    { grade: 'O',  points: 10, label: 'O  – Outstanding (10)' },
+    { grade: 'A+', points: 9,  label: 'A+ – Excellent (9)' },
+    { grade: 'A',  points: 8,  label: 'A  – Very Good (8)' },
+    { grade: 'B+', points: 7,  label: 'B+ – Good (7)' },
+    { grade: 'B',  points: 6,  label: 'B  – Above Average (6)' },
+    { grade: 'C',  points: 5,  label: 'C  – Average (5)' },
+    { grade: 'P',  points: 4,  label: 'P  – Pass (4)' },
+    { grade: 'RA', points: 0,  label: 'RA – Re-Appear (0)' },
+  ];
+
+  const content = `
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <h2>🎯 CGPA Calculator</h2>
+        <p>Calculate your Semester GPA and Cumulative GPA</p>
+      </div>
+      <div class="screen-body" style="padding: 0;">
+
+        <!-- Grade Reference Card -->
+        <div class="cgpa-grade-ref" style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+          <h4 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: var(--text);">📋 Grade Point Reference</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            ${GRADE_MAP.map(g => `
+              <span class="cgpa-chip" style="background: ${g.points >= 8 ? 'rgba(39,174,96,0.12)' : g.points >= 5 ? 'rgba(47,128,237,0.1)' : 'rgba(235,87,87,0.1)'};
+                color: ${g.points >= 8 ? '#27AE60' : g.points >= 5 ? 'var(--primary)' : '#EB5757'};
+                padding: 4px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; white-space: nowrap;">
+                ${g.grade} = ${g.points}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Semester Tabs -->
+        <div class="cgpa-sem-tabs" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
+          ${[1,2,3,4,5,6,7,8].map(s => `
+            <button class="cgpa-sem-tab ${s === 1 ? 'active' : ''}" data-sem="${s}"
+              style="padding: 0.5rem 1rem; border-radius: 10px; border: 2px solid var(--border); background: ${s === 1 ? 'var(--primary)' : 'var(--surface)'};
+                     color: ${s === 1 ? '#fff' : 'var(--text)'}; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.25s;">
+              Sem ${s}
+            </button>
+          `).join('')}
+        </div>
+
+        <!-- Subject Entry Area -->
+        <div class="cgpa-entry-area" style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06); margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+            <h3 id="cgpaSemTitle" style="margin: 0; font-size: 1.15rem; color: var(--text);">Semester 1 – Subjects</h3>
+            <button id="cgpaAddSubject" class="btn btn-primary btn-sm" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 8px;">+ Add Subject</button>
+          </div>
+          <div id="cgpaSubjectList" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          <button id="cgpaCalcBtn" class="btn btn-primary" style="flex: 1; min-width: 180px; padding: 0.75rem; font-size: 1rem; border-radius: 10px; font-weight: 700;">📊 Calculate CGPA</button>
+          <button id="cgpaResetBtn" class="btn btn-outline" style="padding: 0.75rem 1.5rem; font-size: 0.95rem; border-radius: 10px;">🗑️ Reset All</button>
+        </div>
+
+        <!-- Results Area -->
+        <div id="cgpaResults" style="display: none;"></div>
+
+      </div>
+    </div>`;
+
+  buildStudentLayout('cgpa', content);
+
+  // ── State ──
+  const semData = {}; // { 1: [{name, credits, grade}], 2: [...], ... }
+  for (let i = 1; i <= 8; i++) semData[i] = [];
+  let activeSem = 1;
+
+  const gradeOptions = GRADE_MAP.map(g => `<option value="${g.points}">${g.label}</option>`).join('');
+
+  function renderSubjects() {
+    const list = semData[activeSem];
+    const el = document.getElementById('cgpaSubjectList');
+    document.getElementById('cgpaSemTitle').textContent = `Semester ${activeSem} – Subjects`;
+
+    if (!list.length) {
+      el.innerHTML = `
+        <div style="text-align: center; padding: 2rem 1rem; color: var(--text-mod);">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📝</div>
+          <p style="margin: 0;">No subjects added yet. Click <strong>"+ Add Subject"</strong> to begin.</p>
+        </div>`;
+      return;
+    }
+
+    el.innerHTML = list.map((sub, idx) => `
+      <div class="cgpa-subject-row" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
+        background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;">
+        <span style="font-weight: 700; color: var(--primary); min-width: 28px; font-size: 0.9rem;">#${idx + 1}</span>
+        <input type="text" class="cgpa-input cgpa-name" data-idx="${idx}" placeholder="Subject Name" value="${sub.name}"
+          style="flex: 2; min-width: 120px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
+                 background: var(--surface); color: var(--text); font-size: 0.9rem; outline: none; transition: border 0.2s;"/>
+        <input type="number" class="cgpa-input cgpa-credit" data-idx="${idx}" placeholder="Credits" value="${sub.credits}" min="1" max="10"
+          style="width: 80px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
+                 background: var(--surface); color: var(--text); font-size: 0.9rem; outline: none; text-align: center; transition: border 0.2s;"/>
+        <select class="cgpa-input cgpa-grade" data-idx="${idx}"
+          style="width: 170px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
+                 background: var(--surface); color: var(--text); font-size: 0.9rem; outline: none; cursor: pointer; transition: border 0.2s;">
+          ${gradeOptions}
+        </select>
+        <button class="cgpa-del-btn" data-idx="${idx}"
+          style="width: 34px; height: 34px; border-radius: 8px; border: none; background: rgba(235,87,87,0.12);
+                 color: #EB5757; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
+          title="Remove">✕</button>
+      </div>
+    `).join('');
+
+    // Set grade dropdowns to saved values
+    el.querySelectorAll('.cgpa-grade').forEach(sel => {
+      const idx = parseInt(sel.dataset.idx);
+      sel.value = list[idx].grade;
+    });
+
+    // Live-bind inputs
+    el.querySelectorAll('.cgpa-name').forEach(inp => {
+      inp.oninput = () => { semData[activeSem][parseInt(inp.dataset.idx)].name = inp.value; };
+    });
+    el.querySelectorAll('.cgpa-credit').forEach(inp => {
+      inp.oninput = () => { semData[activeSem][parseInt(inp.dataset.idx)].credits = inp.value; };
+    });
+    el.querySelectorAll('.cgpa-grade').forEach(sel => {
+      sel.onchange = () => { semData[activeSem][parseInt(sel.dataset.idx)].grade = sel.value; };
+    });
+    el.querySelectorAll('.cgpa-del-btn').forEach(btn => {
+      btn.onclick = () => {
+        semData[activeSem].splice(parseInt(btn.dataset.idx), 1);
+        renderSubjects();
+      };
+    });
+  }
+
+  // ── Semester tab switching ──
+  document.querySelectorAll('.cgpa-sem-tab').forEach(tab => {
+    tab.onclick = () => {
+      activeSem = parseInt(tab.dataset.sem);
+      document.querySelectorAll('.cgpa-sem-tab').forEach(t => {
+        t.style.background = 'var(--surface)';
+        t.style.color = 'var(--text)';
+        t.classList.remove('active');
+      });
+      tab.style.background = 'var(--primary)';
+      tab.style.color = '#fff';
+      tab.classList.add('active');
+      renderSubjects();
+    };
+  });
+
+  // ── Add subject ──
+  document.getElementById('cgpaAddSubject').onclick = () => {
+    semData[activeSem].push({ name: '', credits: '', grade: '10' });
+    renderSubjects();
+    // Focus the newly added name input
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.cgpa-name');
+      if (inputs.length) inputs[inputs.length - 1].focus();
+    }, 50);
+  };
+
+  // ── Reset ──
+  document.getElementById('cgpaResetBtn').onclick = () => {
+    UI.confirm('Reset All', 'Clear all subjects across all semesters?', () => {
+      for (let i = 1; i <= 8; i++) semData[i] = [];
+      document.getElementById('cgpaResults').style.display = 'none';
+      renderSubjects();
+      UI.toast('All data reset', 'info');
+    });
+  };
+
+  // ── Calculate ──
+  document.getElementById('cgpaCalcBtn').onclick = () => {
+    const semResults = [];
+    let totalCredits = 0, totalWeighted = 0;
+
+    for (let s = 1; s <= 8; s++) {
+      const subjects = semData[s];
+      if (!subjects.length) continue;
+
+      let semCredits = 0, semWeighted = 0, valid = true;
+      subjects.forEach(sub => {
+        const c = parseFloat(sub.credits);
+        const g = parseFloat(sub.grade);
+        if (isNaN(c) || c <= 0) { valid = false; return; }
+        semCredits += c;
+        semWeighted += c * g;
+      });
+
+      if (!valid || semCredits === 0) {
+        UI.toast(`Semester ${s}: Please fill in valid credits for all subjects.`, 'error');
+        return;
+      }
+
+      const sgpa = semWeighted / semCredits;
+      semResults.push({ sem: s, sgpa, credits: semCredits, weighted: semWeighted, count: subjects.length });
+      totalCredits += semCredits;
+      totalWeighted += semWeighted;
+    }
+
+    if (!semResults.length) {
+      UI.toast('Please add subjects to at least one semester.', 'error');
+      return;
+    }
+
+    const cgpa = totalWeighted / totalCredits;
+    const percentage = (cgpa - 0.75) * 10; // Anna University formula
+
+    function gpaColor(val) {
+      if (val >= 9) return '#27AE60';
+      if (val >= 7) return '#2F80ED';
+      if (val >= 5) return '#F2994A';
+      return '#EB5757';
+    }
+
+    const resultsEl = document.getElementById('cgpaResults');
+    resultsEl.style.display = 'block';
+    resultsEl.innerHTML = `
+      <!-- CGPA Hero Card -->
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 2rem; text-align: center; color: #fff; margin-bottom: 1.5rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+        <div style="font-size: 0.95rem; opacity: 0.9; margin-bottom: 0.25rem; letter-spacing: 1px; text-transform: uppercase;">Your Cumulative GPA</div>
+        <div style="font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 0.5rem; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">${cgpa.toFixed(2)}</div>
+        <div style="font-size: 1rem; opacity: 0.85;">≈ ${percentage.toFixed(1)}% (Approx.)</div>
+        <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1.25rem;">
+          <div><div style="font-size: 1.4rem; font-weight: 700;">${totalCredits}</div><div style="font-size: 0.8rem; opacity: 0.8;">Total Credits</div></div>
+          <div><div style="font-size: 1.4rem; font-weight: 700;">${semResults.length}</div><div style="font-size: 0.8rem; opacity: 0.8;">Semesters</div></div>
+          <div><div style="font-size: 1.4rem; font-weight: 700;">${semResults.reduce((a, r) => a + r.count, 0)}</div><div style="font-size: 0.8rem; opacity: 0.8;">Subjects</div></div>
+        </div>
+      </div>
+
+      <!-- Semester-wise Breakdown -->
+      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; color: var(--text);">📊 Semester-wise SGPA</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          ${semResults.map(r => {
+            const barWidth = (r.sgpa / 10) * 100;
+            return `
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <span style="min-width: 55px; font-weight: 600; font-size: 0.9rem; color: var(--text);">Sem ${r.sem}</span>
+              <div style="flex: 1; height: 28px; background: var(--bg); border-radius: 8px; overflow: hidden; position: relative; border: 1px solid var(--border);">
+                <div style="height: 100%; width: ${barWidth}%; background: linear-gradient(90deg, ${gpaColor(r.sgpa)}, ${gpaColor(r.sgpa)}cc);
+                  border-radius: 8px; transition: width 0.6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;">
+                  <span style="font-size: 0.78rem; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">${r.sgpa.toFixed(2)}</span>
+                </div>
+              </div>
+              <span style="min-width: 50px; font-size: 0.8rem; color: var(--text-mod); text-align: right;">${r.credits} cr</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    `;
+
+    // Smooth scroll to results
+    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // Initial render
+  renderSubjects();
 }

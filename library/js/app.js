@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Router.register('student-question-papers', renderQuestionPapers);
   Router.register('view-paper', renderPaperView);
   Router.register('student-ebooks', renderEbooks);
+  Router.register('cgpa-calculator', renderCGPACalculator);
 
   Router.register('admin-dashboard', renderAdminDashboard);
   Router.register('admin-books', renderAdminBooks);

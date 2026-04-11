@@ -489,6 +489,16 @@ input:focus,select:focus,textarea:focus{transition:border-color 0.15s,box-shadow
 .stat-purple::before{background:linear-gradient(90deg,#9B51E0,#2F80ED)}
 .stat-orange::before{background:linear-gradient(90deg,#F2994A,#F2C94C)}
 .stat-teal::before{background:linear-gradient(90deg,#00897B,#4DB6AC)}
+.stat-indigo .stile-val{color:#667eea}
+.stat-indigo::before{background:linear-gradient(90deg,#667eea,#764ba2)}
+
+/* ══════════════════════════════════════
+   CGPA Calculator
+══════════════════════════════════════ */
+.cgpa-input:focus{border-color:var(--primary)!important;box-shadow:0 0 0 3px rgba(47,128,237,0.12)!important}
+.cgpa-subject-row:hover{border-color:var(--primary)!important;box-shadow:0 2px 8px rgba(47,128,237,0.08)}
+.cgpa-del-btn:hover{background:rgba(235,87,87,0.22)!important}
+.cgpa-sem-tab:hover{border-color:var(--primary)!important;color:var(--primary)!important}
 
 /* Sidebar gradient accent */
 .admin-sidebar::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(to top,rgba(47,128,237,0.06),transparent);pointer-events:none;z-index:0}
