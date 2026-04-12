@@ -1212,263 +1212,534 @@ async function renderEbooks() {
 
 // ── CGPA Calculator ───────────────────
 function renderCGPACalculator() {
-  const GRADE_MAP = [
-    { grade: 'O',  points: 10, label: 'O  – Outstanding (10)' },
-    { grade: 'A+', points: 9,  label: 'A+ – Excellent (9)' },
-    { grade: 'A',  points: 8,  label: 'A  – Very Good (8)' },
-    { grade: 'B+', points: 7,  label: 'B+ – Good (7)' },
-    { grade: 'B',  points: 6,  label: 'B  – Above Average (6)' },
-    { grade: 'C',  points: 5,  label: 'C  – Average (5)' },
-    { grade: 'P',  points: 4,  label: 'P  – Pass (4)' },
-    { grade: 'RA', points: 0,  label: 'RA – Re-Appear (0)' },
-  ];
-
   const content = `
     <div class="admin-page">
       <div class="admin-page-header">
-        <h2>🎯 CGPA Calculator</h2>
-        <p>Calculate your Semester GPA and Cumulative GPA</p>
+        <h2>🎯 GPA & CGPA Calculator</h2>
+        <p>Calculate your academic performance</p>
       </div>
       <div class="screen-body" style="padding: 0;">
-
-        <!-- Grade Reference Card -->
-        <div class="cgpa-grade-ref" style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-          <h4 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: var(--text);">📋 Grade Point Reference</h4>
-          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-            ${GRADE_MAP.map(g => `
-              <span class="cgpa-chip" style="background: ${g.points >= 8 ? 'rgba(39,174,96,0.12)' : g.points >= 5 ? 'rgba(47,128,237,0.1)' : 'rgba(235,87,87,0.1)'};
-                color: ${g.points >= 8 ? '#27AE60' : g.points >= 5 ? 'var(--primary)' : '#EB5757'};
-                padding: 4px 12px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; white-space: nowrap;">
-                ${g.grade} = ${g.points}
-              </span>
-            `).join('')}
-          </div>
+        <div class="tab-bar border-box-tabs" style="margin-bottom: 1.5rem">
+          <button class="tab-btn active" id="tabCurriculum" style="font-weight: 800; text-transform: uppercase;">GPA CALCULATOR</button>
+          <button class="tab-btn" id="tabSimple" style="font-weight: 800; text-transform: uppercase;">CGPA CALCULATOR</button>
         </div>
-
-        <!-- Semester Tabs -->
-        <div class="cgpa-sem-tabs" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">
-          ${[1,2,3,4,5,6,7,8].map(s => `
-            <button class="cgpa-sem-tab ${s === 1 ? 'active' : ''}" data-sem="${s}"
-              style="padding: 0.5rem 1rem; border-radius: 10px; border: 2px solid var(--border); background: ${s === 1 ? 'var(--primary)' : 'var(--surface)'};
-                     color: ${s === 1 ? '#fff' : 'var(--text)'}; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.25s;">
-              Sem ${s}
-            </button>
-          `).join('')}
-        </div>
-
-        <!-- Subject Entry Area -->
-        <div class="cgpa-entry-area" style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06); margin-bottom: 1.5rem;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-            <h3 id="cgpaSemTitle" style="margin: 0; font-size: 1.15rem; color: var(--text);">Semester 1 – Subjects</h3>
-            <button id="cgpaAddSubject" class="btn btn-primary btn-sm" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 8px;">+ Add Subject</button>
-          </div>
-          <div id="cgpaSubjectList" style="display: flex; flex-direction: column; gap: 0.75rem;"></div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
-          <button id="cgpaCalcBtn" class="btn btn-primary" style="flex: 1; min-width: 180px; padding: 0.75rem; font-size: 1rem; border-radius: 10px; font-weight: 700;">📊 Calculate CGPA</button>
-          <button id="cgpaResetBtn" class="btn btn-outline" style="padding: 0.75rem 1.5rem; font-size: 0.95rem; border-radius: 10px;">🗑️ Reset All</button>
-        </div>
-
-        <!-- Results Area -->
-        <div id="cgpaResults" style="display: none;"></div>
-
+        <div id="cgpaCalculatorContent"></div>
       </div>
     </div>`;
 
   buildStudentLayout('cgpa', content);
 
-  // ── State ──
-  const semData = {}; // { 1: [{name, credits, grade}], 2: [...], ... }
-  for (let i = 1; i <= 8; i++) semData[i] = [];
-  let activeSem = 1;
+  const curriculumBtn = document.getElementById('tabCurriculum');
+  const simpleBtn = document.getElementById('tabSimple');
+
+  curriculumBtn.onclick = () => {
+    curriculumBtn.classList.add('active');
+    simpleBtn.classList.remove('active');
+    renderCurriculumCalculator();
+  };
+
+  simpleBtn.onclick = () => {
+    simpleBtn.classList.add('active');
+    curriculumBtn.classList.remove('active');
+    renderSimpleCalculator();
+  };
+
+  // Default
+  renderCurriculumCalculator();
+}
+
+function renderCurriculumCalculator() {
+  const container = document.getElementById('cgpaCalculatorContent');
+  if (!container) return;
+  const GRADE_MAP = [
+    { grade: 'O',  points: 10, label: 'O  – Outstanding (10)' },
+    { grade: 'A+', points: 9,  label: 'A+ – Excellent (9)' },
+    { grade: 'A',  points: 8,  label: 'A  – Very Good (8)' },
+    { grade: 'B+', points: 7,  label: 'B+ – Good (7)' },
+    { grade: 'B',  points: 6,  label: 'B  – Average (6)' },
+    { grade: 'C',  points: 5,  label: 'C  – Satisfactory (5)' },
+    { grade: 'U',  points: 0,  label: 'U  – Reappearance (0)' },
+  ];
+
+  const SEM1_SUBJECTS = [
+    { code: '22EYA01', name: 'Professional Communication - I', credits: 3, category: 'HSMC', type: 'Theory' },
+    { code: '22MYB01', name: 'Calculus and Linear Algebra', credits: 4, category: 'BSC', type: 'Theory' },
+    { code: '22PYB01', name: 'Semiconductor Physics', credits: 3, category: 'BSC', type: 'Theory' },
+    { code: '22ECC01', name: 'Basics of Electronics Engineering', credits: 3, category: 'ESC', type: 'Theory' },
+    { code: '22CSC01', name: 'Problem Solving and C Programming', credits: 3, category: 'ESC', type: 'Theory' },
+    { code: '22GYA01', name: '\u0ba4\u0bae\u0bbf\u0bb4\u0bb0\u0bcd \u0bae\u0bb0\u0baa\u0bc1 / Heritage of Tamils', credits: 1, category: 'HSMC', type: 'Theory' },
+    { code: '22ECP01', name: 'Basics of Electronics Engg. Lab', credits: 2, category: 'ESC', type: 'Practical' },
+    { code: '22CSP01', name: 'Problem Solving and C Programming Lab', credits: 2, category: 'ESC', type: 'Practical' },
+    { code: '22PYP01', name: 'Physics Laboratory', credits: 1, category: 'BSC', type: 'Practical' },
+  ];
+  const SEM2_SUBJECTS = [
+    { code: '22EYA02', name: 'Professional Communication - II', credits: 3, category: 'HSMC', type: 'Theory' },
+    { code: '22MYB03', name: 'Statistics and Numerical Methods', credits: 4, category: 'BSC', type: 'Theory' },
+    { code: '22CSC02', name: 'Data Structures using C', credits: 3, category: 'ESC', type: 'Theory' },
+    { code: '22CSC03', name: 'Python Programming', credits: 3, category: 'ESC', type: 'Theory' },
+    { code: '22CSC04', name: 'Digital Principles and Computer Organization', credits: 3, category: 'ESC', type: 'Theory' },
+    { code: '22GYA02', name: '\u0ba4\u0bae\u0bbf\u0bb4\u0bb0\u0bc1\u0bae\u0bcd \u0ba4\u0bca\u0bb4\u0bbf\u0bb2\u0bcd\u0ba8\u0bc1\u0b9f\u0bcd\u0baa\u0bae\u0bc1\u0bae\u0bcd / Tamils and Technology', credits: 1, category: 'HSMC', type: 'Theory' },
+    { code: '22CSP02', name: 'Data Structures Laboratory', credits: 2, category: 'ESC', type: 'Practical' },
+    { code: '22CSP03', name: 'Python Programming Laboratory', credits: 2, category: 'ESC', type: 'Practical' },
+    { code: '22EYP01', name: 'Communication Skills Laboratory', credits: 1, category: 'HSMC', type: 'Practical' },
+  ];
+  const SEM3_SUBJECTS = [
+    { code: '22MYB05', name: 'Discrete Mathematics', credits: 4, category: 'BSC', type: 'Theory' },
+    { code: '22CSC05', name: 'Algorithms', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC06', name: 'Computer Networks', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC07', name: 'Java Programming', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC08', name: 'Operating Systems', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSP04', name: 'Algorithms Laboratory', credits: 2, category: 'PCC', type: 'Practical' },
+    { code: '22CSP05', name: 'Computer Networks Laboratory', credits: 2, category: 'PCC', type: 'Practical' },
+    { code: '22CSP06', name: 'Java Programming Laboratory', credits: 2, category: 'PCC', type: 'Practical' },
+  ];
+  const SEM4_SUBJECTS = [
+    { code: '22CSC09', name: 'Artificial Intelligence and Machine Learning', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC10', name: 'Theory of Computation', credits: 4, category: 'PCC', type: 'Theory' },
+    { code: '22CSC11', name: 'Database Management System', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC12', name: 'Advanced Java Programming', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC13', name: 'Foundations of Data Science', credits: 4, category: 'PCC', type: 'Theory' },
+    { code: '22CYB07', name: 'Environmental Science and Engineering', credits: 3, category: 'BSC', type: 'Theory' },
+    { code: '22CSP07', name: 'Database Management System Laboratory', credits: 2, category: 'PCC', type: 'Practical' },
+    { code: '22CSP08', name: 'Advanced Java Programming Laboratory', credits: 2, category: 'PCC', type: 'Practical' },
+  ];
+  const SEM5_SUBJECTS = [
+    { code: '22CSC14', name: 'Principles of Compiler Design', credits: 4, category: 'PCC', type: 'Theory' },
+    { code: '22CSC15', name: 'Full Stack Development', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC16', name: 'Object Oriented Software Engineering', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: 'E1', name: 'Elective (PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: 'E2', name: 'Elective (PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: 'E3', name: 'Elective (OEC/PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: '22CSP09', name: 'Full Stack Development Laboratory', credits: 2, category: 'PCC', type: 'Practical' },
+    { code: '22CSP10', name: 'Object Oriented Software Engg. Lab', credits: 2, category: 'PCC', type: 'Practical' },
+  ];
+  const SEM6_SUBJECTS = [
+    { code: '22CSC17', name: 'Internet of Things and its Applications', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: '22CSC18', name: 'Mobile Application Development', credits: 3, category: 'PCC', type: 'Theory' },
+    { code: 'E4', name: 'Elective (PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: 'E5', name: 'Elective (PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: 'E6', name: 'Elective (OEC)', credits: 3, category: 'OEC', type: 'Theory' },
+    { code: 'E7', name: 'Elective (OEC/PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: '22CSP11', name: 'IoT and its Applications Laboratory', credits: 2, category: 'PCC', type: 'Practical' },
+    { code: '22CSP12', name: 'Mobile Application Development Lab', credits: 2, category: 'PCC', type: 'Practical' },
+  ];
+  const SEM7_SUBJECTS = [
+    { code: '22GEA01', name: 'Universal Human Values', credits: 2, category: 'HSMC', type: 'Theory' },
+    { code: 'EM', name: 'Elective (Management)', credits: 3, category: 'HSMC', type: 'Theory' },
+    { code: 'E8', name: 'Elective (PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: 'E9', name: 'Elective (OEC/PEC)', credits: 3, category: 'PEC', type: 'Theory' },
+    { code: 'E10', name: 'Elective (OEC)', credits: 3, category: 'OEC', type: 'Theory' },
+    { code: '22GED02', name: 'Internship / Industrial Training', credits: 2, category: 'EEC', type: 'Practical' },
+  ];
+  const SEM8_SUBJECTS = [
+    { code: '22CSD01', name: 'Project Work', credits: 10, category: 'EEC', type: 'Practical' },
+  ];
+
+  const ALL_SEMS = { 1: SEM1_SUBJECTS, 2: SEM2_SUBJECTS, 3: SEM3_SUBJECTS, 4: SEM4_SUBJECTS, 5: SEM5_SUBJECTS, 6: SEM6_SUBJECTS, 7: SEM7_SUBJECTS, 8: SEM8_SUBJECTS };
+  const SEM_ROMAN = ['I','II','III','IV','V','VI','VII','VIII'];
+
+  function catColor(cat) {
+    return ({ 'HSMC':'#9B59B6','BSC':'#2ECC71','ESC':'#3498DB','PCC':'#E67E22','PEC':'#1ABC9C','OEC':'#2980B9','EEC':'#E74C3C','MC':'#95A5A6' })[cat] || '#7F8C8D';
+  }
+  function catBg(cat) {
+    return ({ 'HSMC':'rgba(155,89,182,0.1)','BSC':'rgba(46,204,113,0.1)','ESC':'rgba(52,152,219,0.1)','PCC':'rgba(230,126,34,0.1)','PEC':'rgba(26,188,156,0.1)','OEC':'rgba(41,128,185,0.1)','EEC':'rgba(231,76,60,0.1)','MC':'rgba(149,165,166,0.1)' })[cat] || 'rgba(127,140,141,0.1)';
+  }
+
+  // State: saved grades per semester (Load from localStorage if available)
+  const STORAGE_KEY = `sl_cgpa_grades_${DB.getCurrentUser()?.register_number}`;
+  let semGrades = {};
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) semGrades = JSON.parse(saved);
+  } catch (e) {}
+
+  // Initialize missing sems
+  for (let i = 1; i <= 8; i++) {
+    if (!semGrades[i]) semGrades[i] = ALL_SEMS[i].map(() => '10');
+  }
+
+  function saveGrades() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(semGrades));
+  }
 
   const gradeOptions = GRADE_MAP.map(g => `<option value="${g.points}">${g.label}</option>`).join('');
 
-  function renderSubjects() {
-    const list = semData[activeSem];
-    const el = document.getElementById('cgpaSubjectList');
-    document.getElementById('cgpaSemTitle').textContent = `Semester ${activeSem} – Subjects`;
-
-    if (!list.length) {
-      el.innerHTML = `
-        <div style="text-align: center; padding: 2rem 1rem; color: var(--text-mod);">
-          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📝</div>
-          <p style="margin: 0;">No subjects added yet. Click <strong>"+ Add Subject"</strong> to begin.</p>
-        </div>`;
-      return;
-    }
-
-    el.innerHTML = list.map((sub, idx) => `
-      <div class="cgpa-subject-row" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;
-        background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;">
-        <span style="font-weight: 700; color: var(--primary); min-width: 28px; font-size: 0.9rem;">#${idx + 1}</span>
-        <input type="text" class="cgpa-input cgpa-name" data-idx="${idx}" placeholder="Subject Name" value="${sub.name}"
-          style="flex: 2; min-width: 120px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
-                 background: var(--surface); color: var(--text); font-size: 0.9rem; outline: none; transition: border 0.2s;"/>
-        <input type="number" class="cgpa-input cgpa-credit" data-idx="${idx}" placeholder="Credits" value="${sub.credits}" min="1" max="10"
-          style="width: 80px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
-                 background: var(--surface); color: var(--text); font-size: 0.9rem; outline: none; text-align: center; transition: border 0.2s;"/>
-        <select class="cgpa-input cgpa-grade" data-idx="${idx}"
-          style="width: 170px; padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid var(--border);
-                 background: var(--surface); color: var(--text); font-size: 0.9rem; outline: none; cursor: pointer; transition: border 0.2s;">
-          ${gradeOptions}
-        </select>
-        <button class="cgpa-del-btn" data-idx="${idx}"
-          style="width: 34px; height: 34px; border-radius: 8px; border: none; background: rgba(235,87,87,0.12);
-                 color: #EB5757; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;"
-          title="Remove">✕</button>
-      </div>
-    `).join('');
-
-    // Set grade dropdowns to saved values
-    el.querySelectorAll('.cgpa-grade').forEach(sel => {
-      const idx = parseInt(sel.dataset.idx);
-      sel.value = list[idx].grade;
-    });
-
-    // Live-bind inputs
-    el.querySelectorAll('.cgpa-name').forEach(inp => {
-      inp.oninput = () => { semData[activeSem][parseInt(inp.dataset.idx)].name = inp.value; };
-    });
-    el.querySelectorAll('.cgpa-credit').forEach(inp => {
-      inp.oninput = () => { semData[activeSem][parseInt(inp.dataset.idx)].credits = inp.value; };
-    });
-    el.querySelectorAll('.cgpa-grade').forEach(sel => {
-      sel.onchange = () => { semData[activeSem][parseInt(sel.dataset.idx)].grade = sel.value; };
-    });
-    el.querySelectorAll('.cgpa-del-btn').forEach(btn => {
-      btn.onclick = () => {
-        semData[activeSem].splice(parseInt(btn.dataset.idx), 1);
-        renderSubjects();
-      };
-    });
-  }
-
-  // ── Semester tab switching ──
-  document.querySelectorAll('.cgpa-sem-tab').forEach(tab => {
-    tab.onclick = () => {
-      activeSem = parseInt(tab.dataset.sem);
-      document.querySelectorAll('.cgpa-sem-tab').forEach(t => {
-        t.style.background = 'var(--surface)';
-        t.style.color = 'var(--text)';
-        t.classList.remove('active');
-      });
-      tab.style.background = 'var(--primary)';
-      tab.style.color = '#fff';
-      tab.classList.add('active');
-      renderSubjects();
-    };
-  });
-
-  // ── Add subject ──
-  document.getElementById('cgpaAddSubject').onclick = () => {
-    semData[activeSem].push({ name: '', credits: '', grade: '10' });
-    renderSubjects();
-    // Focus the newly added name input
-    setTimeout(() => {
-      const inputs = document.querySelectorAll('.cgpa-name');
-      if (inputs.length) inputs[inputs.length - 1].focus();
-    }, 50);
-  };
-
-  // ── Reset ──
-  document.getElementById('cgpaResetBtn').onclick = () => {
-    UI.confirm('Reset All', 'Clear all subjects across all semesters?', () => {
-      for (let i = 1; i <= 8; i++) semData[i] = [];
-      document.getElementById('cgpaResults').style.display = 'none';
-      renderSubjects();
-      UI.toast('All data reset', 'info');
-    });
-  };
-
-  // ── Calculate ──
-  document.getElementById('cgpaCalcBtn').onclick = () => {
-    const semResults = [];
-    let totalCredits = 0, totalWeighted = 0;
+  // ─── VIEW 1: Semester List ───
+  function renderSemesterList() {
+    // Calculate total CGPA
+    let totalWeight = 0, totalCredits = 0, semestersCounted = 0;
+    const semResults = {};
 
     for (let s = 1; s <= 8; s++) {
-      const subjects = semData[s];
-      if (!subjects.length) continue;
-
-      let semCredits = 0, semWeighted = 0, valid = true;
-      subjects.forEach(sub => {
-        const c = parseFloat(sub.credits);
-        const g = parseFloat(sub.grade);
-        if (isNaN(c) || c <= 0) { valid = false; return; }
-        semCredits += c;
-        semWeighted += c * g;
+      let sw = 0, sc = 0, hasValid = false;
+      ALL_SEMS[s].forEach((sub, idx) => {
+        const g = parseFloat(semGrades[s][idx]);
+        if (!isNaN(g)) {
+          sw += sub.credits * g;
+          sc += sub.credits;
+          hasValid = true;
+        }
       });
-
-      if (!valid || semCredits === 0) {
-        UI.toast(`Semester ${s}: Please fill in valid credits for all subjects.`, 'error');
-        return;
+      if (sc > 0) {
+        semResults[s] = sw / sc;
+        totalWeight += sw;
+        totalCredits += sc;
+        semestersCounted++;
       }
-
-      const sgpa = semWeighted / semCredits;
-      semResults.push({ sem: s, sgpa, credits: semCredits, weighted: semWeighted, count: subjects.length });
-      totalCredits += semCredits;
-      totalWeighted += semWeighted;
     }
 
-    if (!semResults.length) {
-      UI.toast('Please add subjects to at least one semester.', 'error');
-      return;
-    }
+    const overallCGPA = totalCredits > 0 ? (totalWeight / totalCredits) : 0;
 
-    const cgpa = totalWeighted / totalCredits;
-    const percentage = (cgpa - 0.75) * 10; // Anna University formula
-
-    function gpaColor(val) {
-      if (val >= 9) return '#27AE60';
-      if (val >= 7) return '#2F80ED';
-      if (val >= 5) return '#F2994A';
-      return '#EB5757';
-    }
-
-    const resultsEl = document.getElementById('cgpaResults');
-    resultsEl.style.display = 'block';
-    resultsEl.innerHTML = `
-      <!-- CGPA Hero Card -->
-      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 2rem; text-align: center; color: #fff; margin-bottom: 1.5rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 0.95rem; opacity: 0.9; margin-bottom: 0.25rem; letter-spacing: 1px; text-transform: uppercase;">Your Cumulative GPA</div>
-        <div style="font-size: 3.5rem; font-weight: 800; line-height: 1.1; margin-bottom: 0.5rem; text-shadow: 0 2px 8px rgba(0,0,0,0.2);">${cgpa.toFixed(2)}</div>
-        <div style="font-size: 1rem; opacity: 0.85;">≈ ${percentage.toFixed(1)}% (Approx.)</div>
-        <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 1.25rem;">
-          <div><div style="font-size: 1.4rem; font-weight: 700;">${totalCredits}</div><div style="font-size: 0.8rem; opacity: 0.8;">Total Credits</div></div>
-          <div><div style="font-size: 1.4rem; font-weight: 700;">${semResults.length}</div><div style="font-size: 0.8rem; opacity: 0.8;">Semesters</div></div>
-          <div><div style="font-size: 1.4rem; font-weight: 700;">${semResults.reduce((a, r) => a + r.count, 0)}</div><div style="font-size: 0.8rem; opacity: 0.8;">Subjects</div></div>
-        </div>
+    const content = `
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <h2>🎯 GPA Dashboard</h2>
+        <p>Curriculum: Regulation 2022 (CSE)</p>
       </div>
+      <div class="screen-body" style="padding: 0;">
 
-      <!-- Semester-wise Breakdown -->
-      <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-        <h3 style="margin: 0 0 1rem 0; font-size: 1.1rem; color: var(--text);">📊 Semester-wise SGPA</h3>
-        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-          ${semResults.map(r => {
-            const barWidth = (r.sgpa / 10) * 100;
+
+        <!-- Grade Scale -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 2rem; box-shadow: var(--card-shadow);">
+          <h4 style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--text-sec); text-align: center; text-transform: uppercase; letter-spacing: 1px;">University Grading Standard</h4>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;">
+            ${GRADE_MAP.map(g => `
+              <span style="background: ${g.points >= 8 ? 'rgba(39,174,96,0.12)' : g.points >= 5 ? 'rgba(47,128,237,0.1)' : 'rgba(235,87,87,0.1)'};
+                color: ${g.points >= 8 ? '#27AE60' : g.points >= 5 ? 'var(--primary)' : '#EB5757'};
+                padding: 6px 14px; border-radius: 10px; font-size: 0.8rem; font-weight: 800;
+                border: 1px solid ${g.points >= 8 ? 'rgba(39,174,96,0.2)' : g.points >= 5 ? 'rgba(47,128,237,0.15)' : 'rgba(235,87,87,0.15)'};">
+                ${g.grade}=${g.points}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Semester List Card -->
+        <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.05);">
+          ${[1,2,3,4,5,6,7,8].map((s, i) => {
+            const subs = ALL_SEMS[s];
+            const tc = subs.reduce((a, b) => a + b.credits, 0);
+            const gpa = semResults[s];
             return `
-            <div style="display: flex; align-items: center; gap: 1rem;">
-              <span style="min-width: 55px; font-weight: 600; font-size: 0.9rem; color: var(--text);">Sem ${r.sem}</span>
-              <div style="flex: 1; height: 28px; background: var(--bg); border-radius: 8px; overflow: hidden; position: relative; border: 1px solid var(--border);">
-                <div style="height: 100%; width: ${barWidth}%; background: linear-gradient(90deg, ${gpaColor(r.sgpa)}, ${gpaColor(r.sgpa)}cc);
-                  border-radius: 8px; transition: width 0.6s ease; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px;">
-                  <span style="font-size: 0.78rem; font-weight: 700; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">${r.sgpa.toFixed(2)}</span>
-                </div>
+            <div class="cgpa-sem-row" data-sem="${s}" style="display: flex; align-items: center; padding: 1.25rem 1.5rem; cursor: pointer;
+              ${i < 7 ? 'border-bottom: 1px solid var(--border);' : ''} transition: all 0.2s;">
+              <div style="width: 48px; height: 48px; background: rgba(47,128,237,0.08); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary); margin-right: 1.25rem; font-size: 1.2rem;">${s}</div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; font-size: 1.1rem; color: var(--text);">Semester ${SEM_ROMAN[s-1]}</div>
+                <div style="font-size: 0.85rem; color: var(--text-mod); margin-top: 4px;">${subs.length} subjects \u00B7 ${tc} credits</div>
               </div>
-              <span style="min-width: 50px; font-size: 0.8rem; color: var(--text-mod); text-align: right;">${r.credits} cr</span>
+              <div style="text-align: right; margin-right: 1rem;">
+                ${gpa ? `<div style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">${gpa.toFixed(2)}</div><div style="font-size: 0.7rem; color: var(--text-mod); font-weight: 600; text-transform: uppercase;">GPA</div>` : '<div style="color: var(--text-sec); opacity: 0.5; font-size: 0.9rem;">No data</div>'}
+              </div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-mod)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>`;
           }).join('')}
         </div>
       </div>
+    </div>`;
+
+    container.innerHTML = content;
+
+    document.querySelectorAll('.cgpa-sem-row').forEach(row => {
+      row.onmouseenter = () => row.style.background = 'var(--bg)';
+      row.onmouseleave = () => row.style.background = 'transparent';
+      row.onclick = () => renderSemesterDetail(parseInt(row.dataset.sem));
+    });
+  }
+
+  // ─── VIEW 2: Semester Detail ───
+  function renderSemesterDetail(semNum) {
+    const subjects = ALL_SEMS[semNum];
+    const totalCredits = subjects.reduce((a, b) => a + b.credits, 0);
+    const theory = subjects.filter(s => s.type === 'Theory');
+    const practical = subjects.filter(s => s.type === 'Practical');
+
+    function subjectRow(sub, idx) {
+      return `
+      <div style="display: flex; align-items: center; gap: 0.6rem; padding: 0.65rem 0.75rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface);">
+        <div style="width: 6px; height: 40px; border-radius: 3px; background: ${catColor(sub.category)}; flex-shrink: 0;"></div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 600; font-size: 0.88rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${sub.name}">${sub.name}</div>
+          <div style="display: flex; gap: 0.4rem; align-items: center; margin-top: 2px;">
+            <span style="font-size: 0.72rem; color: var(--text-mod);">${sub.code}</span>
+            <span style="font-size: 0.68rem; padding: 1px 5px; border-radius: 4px; background: ${catBg(sub.category)}; color: ${catColor(sub.category)}; font-weight: 600;">${sub.category}</span>
+            <span style="font-size: 0.72rem; font-weight: 700; color: var(--primary);">${sub.credits}C</span>
+          </div>
+        </div>
+        <select class="cgpa-grade-sel" data-idx="${idx}" style="width: 140px; padding: 0.4rem; border-radius: 8px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.8rem; font-weight: 600; cursor: pointer; outline: none;">
+          ${gradeOptions}
+        </select>
+      </div>`;
+    }
+
+    const content = `
+    <div class="admin-page">
+      <div class="admin-page-header" style="display: flex; align-items: center; gap: 0.6rem;">
+        <button id="cgpaBackBtn" style="background: none; border: none; cursor: pointer; padding: 0.4rem; border-radius: 8px; display: flex;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div>
+          <h2 style="margin:0;">Semester ${SEM_ROMAN[semNum-1]}</h2>
+          <p style="margin:0;">${subjects.length} subjects \u00B7 ${totalCredits} credits</p>
+        </div>
+      </div>
+      <div class="screen-body" style="padding: 0;">
+
+        ${theory.length ? `
+        <div style="margin-bottom: 1rem;">
+          <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem;">
+            <span style="font-size:1rem;">\u{1F4D8}</span>
+            <span style="font-weight:700;font-size:0.88rem;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;">Theory</span>
+            <span style="font-size:0.75rem;color:var(--text-mod);">(${theory.length})</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            ${theory.map(sub => subjectRow(sub, subjects.indexOf(sub))).join('')}
+          </div>
+        </div>` : ''}
+
+        ${practical.length ? `
+        <div style="margin-bottom: 1rem;">
+          <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.5rem;">
+            <span style="font-size:1rem;">\u{1F52C}</span>
+            <span style="font-weight:700;font-size:0.88rem;color:var(--text);text-transform:uppercase;letter-spacing:0.5px;">Practical</span>
+            <span style="font-size:0.75rem;color:var(--text-mod);">(${practical.length})</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.4rem;">
+            ${practical.map(sub => subjectRow(sub, subjects.indexOf(sub))).join('')}
+          </div>
+        </div>` : ''}
+
+        <button id="cgpaCalcBtn" style="width:100%;padding:0.95rem;font-size:1.05rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;
+          background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 6px 20px rgba(102,126,234,0.35);margin-top:0.5rem;">
+          \u{1F4CA} Calculate GPA
+        </button>
+
+        <div id="cgpaResults" style="display:none;margin-top:1.25rem;"></div>
+      </div>
+    </div>`;
+
+    container.innerHTML = content;
+
+    // Restore grades
+    document.querySelectorAll('.cgpa-grade-sel').forEach(sel => {
+      const idx = parseInt(sel.dataset.idx);
+      sel.value = semGrades[semNum][idx] || '10';
+      sel.onchange = () => { 
+        semGrades[semNum][idx] = sel.value; 
+        saveGrades(); // Persist immediately
+      };
+    });
+
+    // Back
+    document.getElementById('cgpaBackBtn').onclick = () => renderSemesterList();
+
+    // Calculate
+    document.getElementById('cgpaCalcBtn').onclick = () => {
+      let sc = 0, sw = 0, hasU = false;
+      const rows = [];
+
+      subjects.forEach((sub, idx) => {
+        const c = sub.credits;
+        const g = parseFloat(semGrades[semNum][idx]);
+        if (c <= 0) return;
+        const gn = GRADE_MAP.find(x => x.points === g)?.grade || '?';
+        if (g === 0) { hasU = true; rows.push({ n: sub.name, c, gn, g, w: 0, ex: true }); return; }
+        sc += c; sw += c * g;
+        rows.push({ n: sub.name, c, gn, g, w: c * g, ex: false });
+      });
+
+      if (sc === 0) { UI.toast(hasU ? 'All subjects have U grade.' : 'No valid credits.', 'error'); return; }
+
+      const sgpa = sw / sc;
+      const pct = (sgpa - 0.75) * 10;
+      const gc = v => v >= 9 ? '#27AE60' : v >= 7 ? '#2F80ED' : v >= 5 ? '#F2994A' : '#EB5757';
+      const gl = v => v >= 9 ? 'Outstanding' : v >= 8 ? 'Excellent' : v >= 7 ? 'Very Good' : v >= 6 ? 'Good' : v >= 5 ? 'Satisfactory' : 'Needs Improvement';
+
+      const r = document.getElementById('cgpaResults');
+      r.style.display = 'block';
+      r.innerHTML = `
+        <div style="background:linear-gradient(135deg,#667eea,#764ba2);border-radius:18px;padding:2rem 1.5rem;text-align:center;color:#fff;margin-bottom:1.25rem;
+          box-shadow:0 12px 35px rgba(102,126,234,0.35);position:relative;overflow:hidden;">
+          <div style="position:absolute;inset:0;background:radial-gradient(circle at 20% 80%,rgba(255,255,255,0.08) 0%,transparent 50%);"></div>
+          <div style="position:relative;z-index:1;">
+            <div style="font-size:0.82rem;opacity:0.8;letter-spacing:2px;text-transform:uppercase;font-weight:600;">Semester ${SEM_ROMAN[semNum-1]} \u2013 GPA</div>
+            <div style="font-size:3.5rem;font-weight:900;line-height:1.1;margin:0.15rem 0;">${sgpa.toFixed(2)}</div>
+            <div style="font-size:1rem;opacity:0.9;font-weight:600;">${gl(sgpa)}</div>
+            <div style="font-size:0.85rem;opacity:0.7;margin-top:0.2rem;">\u2248 ${pct.toFixed(1)}%</div>
+            <div style="display:flex;justify-content:center;gap:2rem;margin-top:1.15rem;">
+              <div><div style="font-size:1.3rem;font-weight:800;">${sc}</div><div style="font-size:0.7rem;opacity:0.7;">Credits</div></div>
+              <div><div style="font-size:1.3rem;font-weight:800;">${rows.length}</div><div style="font-size:0.7rem;opacity:0.7;">Subjects</div></div>
+              <div><div style="font-size:1.3rem;font-weight:800;">${sw}</div><div style="font-size:0.7rem;opacity:0.7;">Points</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.15rem;box-shadow:0 3px 12px rgba(0,0,0,0.04);">
+          <h4 style="margin:0 0 0.85rem;font-size:0.95rem;color:var(--text);">\u{1F4CA} Subject Breakdown</h4>
+          <div style="display:flex;padding:0.45rem 0.6rem;background:var(--bg);border-radius:7px;margin-bottom:0.35rem;font-size:0.7rem;font-weight:700;color:var(--text-mod);text-transform:uppercase;letter-spacing:0.5px;">
+            <span style="flex:2;">Subject</span>
+            <span style="width:35px;text-align:center;">C</span>
+            <span style="width:42px;text-align:center;">Grade</span>
+            <span style="width:30px;text-align:center;">GP</span>
+            <span style="width:45px;text-align:right;">C\u00D7GP</span>
+          </div>
+          ${rows.map(r => `
+            <div style="display:flex;align-items:center;padding:0.5rem 0.6rem;border-bottom:1px solid var(--border);${r.ex ? 'opacity:0.45;' : ''}">
+              <span style="flex:2;font-size:0.8rem;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${r.n}">${r.n}</span>
+              <span style="width:35px;text-align:center;font-weight:700;font-size:0.82rem;color:var(--primary);">${r.c}</span>
+              <span style="width:42px;text-align:center;">
+                <span style="padding:2px 5px;border-radius:5px;font-size:0.75rem;font-weight:700;background:${r.ex?'rgba(235,87,87,0.1)':`${gc(r.g)}15`};color:${r.ex?'#EB5757':gc(r.g)};">${r.gn}</span>
+              </span>
+              <span style="width:30px;text-align:center;font-size:0.8rem;color:var(--text-mod);">${r.g}</span>
+              <span style="width:45px;text-align:right;font-size:0.82rem;font-weight:700;color:${r.ex?'#EB5757':'var(--text)'};">${r.ex?'\u2014':r.w}</span>
+            </div>
+          `).join('')}
+          <div style="display:flex;align-items:center;padding:0.65rem 0.6rem;margin-top:0.15rem;background:linear-gradient(135deg,rgba(102,126,234,0.06),rgba(118,75,162,0.06));border-radius:7px;font-weight:800;">
+            <span style="flex:2;font-size:0.85rem;color:var(--text);">TOTAL</span>
+            <span style="width:35px;text-align:center;font-size:0.85rem;color:var(--primary);">${sc}</span>
+            <span style="width:42px;"></span>
+            <span style="width:30px;"></span>
+            <span style="width:45px;text-align:right;font-size:0.85rem;color:var(--text);">${sw}</span>
+          </div>
+          <div style="margin-top:0.75rem;padding:0.6rem 0.8rem;background:var(--bg);border-radius:7px;border:1px solid var(--border);text-align:center;">
+            <span style="font-size:0.82rem;color:var(--text-mod);">GPA = ${sw} \u00F7 ${sc} = </span>
+            <span style="font-size:1.05rem;font-weight:800;color:${gc(sgpa)};">${sgpa.toFixed(2)}</span>
+          </div>
+        </div>
+      `;
+      r.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+  }
+
+  // Start with semester list
+  renderSemesterList();
+}
+
+// ── Simple CGPA Calculator ────────────────
+function renderSimpleCalculator() {
+  const container = document.getElementById('cgpaCalculatorContent');
+  if (!container) return;
+
+  // Persistent state for sem count and dropdowns
+  if (!window._simpleGPAState) {
+    window._simpleGPAState = {
+      semCount: 8, // Standard 8 semesters
+    };
+  }
+  const state = window._simpleGPAState;
+
+  function buildUI() {
+    container.innerHTML = `
+      <div class="admin-page-header" style="margin-bottom: 2rem;">
+        <h2>🎯 CGPA Dashboard</h2>
+        <p>Curriculum: Regulation 2022 (CSE)</p>
+      </div>
+
+      <div class="simple-cgpa-container" style="background: var(--bg); border-radius: 24px; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; min-height: 800px; gap: 2rem;">
+        
+        <!-- Input Card (Matching Style) -->
+        <div class="simple-cgpa-card" style="background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem 1.5rem; width: 100%; max-width: 450px; box-shadow: 0 8px 30px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 1.5rem; text-align: center;">
+          
+          <div style="border-bottom: 2px solid var(--bg); padding-bottom: 1rem; margin-bottom: 0.5rem;">
+            <h3 style="font-size: 1.1rem; color: var(--text); margin: 0; font-weight: 800;">Semester Wise GPA</h3>
+            <p style="font-size: 0.85rem; color: var(--text-mod); margin-top: 5px;">Enter your results to update the dashboard</p>
+          </div>
+
+          <div id="simpleSemsList" style="display: flex; flex-direction: column; gap: 1rem;">
+            ${Array.from({ length: state.semCount }).map((_, i) => `
+              <div class="sem-input-block" style="text-align: left;">
+                <label style="display: block; font-weight: 700; color: var(--text); margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8;">Semester ${i + 1}</label>
+                <div style="position: relative;">
+                   <input type="number" step="0.01" min="0" max="10" class="sem-gpa-input-val" 
+                          style="width: 100%; padding: 14px 14px 14px 45px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg); text-align: left; font-size: 1.1rem; font-weight: 700; color: var(--text); outline: none; transition: border-color 0.2s;" 
+                          placeholder="0.00">
+                   <span style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 1rem; opacity: 0.5;">📊</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
+            <button id="addSemBtn" style="background: var(--bg); color: var(--text); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border); cursor: pointer;">Add Semester</button>
+            <button id="removeSemBtn" style="background: var(--bg); color: var(--text); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border); cursor: pointer;">Remove Semester</button>
+            <button id="calculateFinalCGPA" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 18px; border-radius: 14px; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(102,126,234,0.3); margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
+               calculate cgpa
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Summary Card (Moved to Bottom) -->
+        <div id="cgpaSummaryCard" style="background: linear-gradient(135deg, var(--primary), #56CCF2); border-radius: 20px; padding: 2.5rem 2rem; width: 100%; max-width: 450px; text-align: center; color: white; box-shadow: 0 15px 35px rgba(47,128,237,0.25); position: relative; overflow: hidden;">
+           <div style="position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+           <div style="font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 2px; font-weight: 700;">Final CGPA Score</div>
+           <div id="cgpaValueHero" style="font-size: 4.5rem; font-weight: 900; margin: 0.5rem 0; line-height: 1;">N/A</div>
+           <div id="cgpaCommentHero" style="font-size: 1rem; font-weight: 600; opacity: 0.9;">No data calculated yet</div>
+        </div>
+
+      </div>
     `;
 
-    // Smooth scroll to results
-    resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
 
-  // Initial render
-  renderSubjects();
+    // Action: Add semester
+    document.getElementById('addSemBtn').onclick = () => {
+      if (state.semCount < 12) {
+        state.semCount++;
+        buildUI();
+      } else {
+        UI.toast('Only 12 semesters allowed', 'info');
+      }
+    };
+
+    // Action: Remove semester
+    document.getElementById('removeSemBtn').onclick = () => {
+      if (state.semCount > 1) {
+        state.semCount--;
+        buildUI();
+      }
+    };
+
+    // Action: Calculate
+    document.getElementById('calculateFinalCGPA').onclick = () => {
+      const inputs = document.querySelectorAll('.sem-gpa-input-val');
+      let total = 0;
+      let count = 0;
+
+      inputs.forEach(input => {
+        const val = parseFloat(input.value);
+        // Only count fields that are not empty and are valid numbers >= 0
+        if (!isNaN(val) && input.value.trim() !== '') {
+          total += val;
+          count++;
+        }
+      });
+
+      const display = document.getElementById('cgpaValueHero');
+      const comment = document.getElementById('cgpaCommentHero');
+
+      if (count > 0) {
+        const cgpa = total / count;
+        display.textContent = cgpa.toFixed(2);
+        
+        // Performance comments
+        if (cgpa >= 9.0) { comment.textContent = 'Excellent! Outstanding performance.'; }
+        else if (cgpa >= 8.0) { comment.textContent = 'Very Good! Keep it up.'; }
+        else if (cgpa >= 7.0) { comment.textContent = 'Good! You are on track.'; }
+        else if (cgpa >= 6.0) { comment.textContent = 'Satisfactory performance.'; }
+        else { comment.textContent = 'Needs intensive improvement.'; }
+
+        // Scroll to the summary card at the bottom
+        const card = document.getElementById('cgpaSummaryCard');
+        if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        display.textContent = 'N/A';
+        comment.textContent = 'Please enter at least one valid GPA.';
+        UI.toast('Please enter valid GPAs', 'error');
+      }
+    };
+  }
+
+  buildUI();
 }
+
+
