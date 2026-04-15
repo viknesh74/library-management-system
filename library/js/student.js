@@ -1509,10 +1509,16 @@ function renderCurriculumCalculator() {
           </div>
         </div>` : ''}
 
-        <button id="cgpaCalcBtn" style="width:100%;padding:0.95rem;font-size:1.05rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;
-          background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 6px 20px rgba(102,126,234,0.35);margin-top:0.5rem;">
-          \u{1F4CA} Calculate GPA
-        </button>
+        <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+          <button id="cgpaCalcBtn" style="flex:1;padding:0.95rem;font-size:1.05rem;font-weight:700;border:none;border-radius:14px;cursor:pointer;
+            background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;box-shadow:0 6px 20px rgba(102,126,234,0.35);">
+            📊 Calculate GPA
+          </button>
+          <button id="cgpaResetBtn" style="padding:0.95rem 1.2rem;font-size:1.05rem;font-weight:700;border:2px solid #EB5757;border-radius:14px;cursor:pointer;
+            background:rgba(235,87,87,0.08);color:#EB5757;transition:all 0.2s;" title="Reset all grades for this semester">
+            🔄 Reset
+          </button>
+        </div>
 
         <div id="cgpaResults" style="display:none;margin-top:1.25rem;"></div>
       </div>
@@ -1532,6 +1538,16 @@ function renderCurriculumCalculator() {
 
     // Back
     document.getElementById('cgpaBackBtn').onclick = () => renderSemesterList();
+
+    // Reset grades for this semester
+    document.getElementById('cgpaResetBtn').onclick = () => {
+      UI.confirm('Reset Grades', `Reset all grades for Semester ${SEM_ROMAN[semNum-1]} back to default (O)?`, () => {
+        semGrades[semNum] = ALL_SEMS[semNum].map(() => '10');
+        saveGrades();
+        renderSemesterDetail(semNum);
+        UI.toast('Grades reset to default ✅', 'success');
+      });
+    };
 
     // Calculate
     document.getElementById('cgpaCalcBtn').onclick = () => {
@@ -1660,11 +1676,16 @@ function renderSimpleCalculator() {
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem;">
-            <button id="addSemBtn" style="background: var(--bg); color: var(--text); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border); cursor: pointer;">Add Semester</button>
-            <button id="removeSemBtn" style="background: var(--bg); color: var(--text); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border); cursor: pointer;">Remove Semester</button>
-            <button id="calculateFinalCGPA" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 18px; border-radius: 14px; font-weight: 800; font-size: 1.1rem; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(102,126,234,0.3); margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 1px;">
-               calculate cgpa
-            </button>
+            <button id="addSemBtn" style="background: var(--bg); color: var(--text); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border); cursor: pointer;">➕ Add Semester</button>
+            <button id="removeSemBtn" style="background: var(--bg); color: var(--text); padding: 14px; border-radius: 12px; font-weight: 700; font-size: 0.9rem; border: 1px solid var(--border); cursor: pointer;">➖ Remove Semester</button>
+            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+              <button id="calculateFinalCGPA" style="flex: 1; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 18px; border-radius: 14px; font-weight: 800; font-size: 1.05rem; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(102,126,234,0.3); text-transform: uppercase; letter-spacing: 1px;">
+                Calculate CGPA
+              </button>
+              <button id="resetFinalCGPA" style="padding: 18px 1.2rem; border-radius: 14px; font-weight: 800; font-size: 1.05rem; border: 2px solid #EB5757; background: rgba(235,87,87,0.08); color: #EB5757; cursor: pointer; transition: all 0.2s;" title="Reset all GPA inputs">
+                🔄 Reset
+              </button>
+            </div>
           </div>
 
         </div>
@@ -1697,6 +1718,16 @@ function renderSimpleCalculator() {
         state.semCount--;
         buildUI();
       }
+    };
+
+    // Action: Reset all GPA inputs
+    document.getElementById('resetFinalCGPA').onclick = () => {
+      UI.confirm('Reset CGPA', 'Clear all entered GPA values?', () => {
+        document.querySelectorAll('.sem-gpa-input-val').forEach(inp => inp.value = '');
+        document.getElementById('cgpaValueHero').textContent = 'N/A';
+        document.getElementById('cgpaCommentHero').textContent = 'No data calculated yet';
+        UI.toast('All GPA values cleared ✅', 'success');
+      });
     };
 
     // Action: Calculate
