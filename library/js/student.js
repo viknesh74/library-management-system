@@ -1252,13 +1252,13 @@ function renderCurriculumCalculator() {
   const container = document.getElementById('cgpaCalculatorContent');
   if (!container) return;
   const GRADE_MAP = [
-    { grade: 'O',  points: 10, label: 'O  – Outstanding (10)' },
-    { grade: 'A+', points: 9,  label: 'A+ – Excellent (9)' },
-    { grade: 'A',  points: 8,  label: 'A  – Very Good (8)' },
-    { grade: 'B+', points: 7,  label: 'B+ – Good (7)' },
-    { grade: 'B',  points: 6,  label: 'B  – Average (6)' },
-    { grade: 'C',  points: 5,  label: 'C  – Satisfactory (5)' },
-    { grade: 'U',  points: 0,  label: 'U  – Reappearance (0)' },
+    { grade: 'O',  points: 10, label: 'O  |  10' },
+    { grade: 'A+', points: 9,  label: 'A+ |  9' },
+    { grade: 'A',  points: 8,  label: 'A  |  8' },
+    { grade: 'B+', points: 7,  label: 'B+ |  7' },
+    { grade: 'B',  points: 6,  label: 'B  |  6' },
+    { grade: 'C',  points: 5,  label: 'C  |  5' },
+    { grade: 'U',  points: 0,  label: 'U  |  0' },
   ];
 
   const SEM1_SUBJECTS = [
@@ -1559,12 +1559,18 @@ function renderCurriculumCalculator() {
         const g = parseFloat(semGrades[semNum][idx]);
         if (c <= 0) return;
         const gn = GRADE_MAP.find(x => x.points === g)?.grade || '?';
-        if (g === 0) { hasU = true; rows.push({ n: sub.name, c, gn, g, w: 0, ex: true }); return; }
+        if (g === 0) {
+          hasU = true;
+          sc += c;        // ✅ Arrear credits count in denominator (reduces GPA correctly)
+          // sw += 0      // Grade points = 0, so no contribution to numerator
+          rows.push({ n: sub.name, c, gn, g, w: 0, ex: true });
+          return;
+        }
         sc += c; sw += c * g;
         rows.push({ n: sub.name, c, gn, g, w: c * g, ex: false });
       });
 
-      if (sc === 0) { UI.toast(hasU ? 'All subjects have U grade.' : 'No valid credits.', 'error'); return; }
+      if (sc === 0) { UI.toast('No subjects with valid credits found.', 'error'); return; }
 
       const sgpa = sw / sc;
       const pct = (sgpa - 0.75) * 10;

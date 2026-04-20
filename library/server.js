@@ -44,10 +44,8 @@ const ebookStorage = multer.diskStorage({
 const uploadEbook = multer({
   storage: ebookStorage,
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 MB
-  fileFilter: (req, file, cb) => {
-    const allowed = /pdf|epub|doc|docx/;
-    cb(null, allowed.test(path.extname(file.originalname).toLowerCase()));
-  }
+  // No fileFilter: multer v2 cb(null,false) silently drops file → req.file undefined
+  // Browser accept attribute handles file type restriction on client side
 }).single('file');
 
 const app = express();
@@ -143,8 +141,18 @@ async function initDB() {
     file_path VARCHAR(255) NOT NULL,
     file_name VARCHAR(255) NOT NULL,
     file_size BIGINT DEFAULT 0,
+    source_type VARCHAR(10) DEFAULT 'upload',
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`);
+
+  // Migrate source_type column if missing
+  try {
+    const [ebCols] = await db.query(`SHOW COLUMNS FROM ebooks LIKE 'source_type'`);
+    if (!ebCols.length) {
+      await db.execute(`ALTER TABLE ebooks ADD COLUMN source_type VARCHAR(10) DEFAULT 'upload'`);
+      console.log('✅ Added source_type column to ebooks.');
+    }
+  } catch (_) { }
 
   // Migrate exam_type column if missing
   try {
@@ -569,50 +577,84 @@ app.get('/api/ebooks', authenticateJWT, async (req, res) => {
   }
 });
 
-// POST – upload new ebook (admin only)
+// POST – add new ebook: supports URL mode OR file upload mode (admin only)
 app.post('/api/ebooks', authenticateJWT, (req, res) => {
   if (req.user.role !== 'admin') return res.sendStatus(403);
+
+  // Try to parse body first (URL mode: no file upload, JSON/form body)
+  // We run multer but allow it to complete even with no file
   uploadEbook(req, res, async (err) => {
     if (err) return res.status(400).json({ ok: false, msg: err.message });
-    const { title, author, category, description } = req.body;
+    const { title, author, category, description, book_url } = req.body;
     if (!title || !author || !category) return res.status(400).json({ ok: false, msg: 'title, author and category are required.' });
-    if (!req.file) return res.status(400).json({ ok: false, msg: 'E-book file is required.' });
+
     try {
-      const file_path = '/uploads/ebooks/' + req.file.filename;
-      const file_name = req.file.originalname;
-      const file_size = req.file.size;
+      let file_path, file_name, file_size, source_type;
+
+      if (book_url && book_url.trim()) {
+        // ── URL mode ──
+        file_path  = book_url.trim();
+        file_name  = book_url.trim().split('/').pop().split('?')[0] || 'ebook-link';
+        file_size  = 0;
+        source_type = 'url';
+      } else if (req.file) {
+        // ── File upload mode ──
+        file_path  = '/uploads/ebooks/' + req.file.filename;
+        file_name  = req.file.originalname;
+        file_size  = req.file.size;
+        source_type = 'upload';
+      } else {
+        return res.status(400).json({ ok: false, msg: 'Provide either a book URL or upload a file.' });
+      }
+
       const [result] = await db.execute(
-        'INSERT INTO ebooks (title, author, category, description, file_path, file_name, file_size) VALUES (?,?,?,?,?,?,?)',
-        [title, author, category, description || '', file_path, file_name, file_size]
+        'INSERT INTO ebooks (title, author, category, description, file_path, file_name, file_size, source_type) VALUES (?,?,?,?,?,?,?,?)',
+        [title, author, category, description || '', file_path, file_name, file_size, source_type]
       );
-      res.status(201).json({ ok: true, id: result.insertId, title, author, category, description, file_path, file_name, file_size });
+      res.status(201).json({ ok: true, id: result.insertId, title, author, category, description, file_path, file_name, file_size, source_type });
     } catch (dbErr) {
       res.status(500).json({ ok: false, msg: dbErr.message });
     }
   });
 });
 
-// PUT – update ebook metadata (admin only, optionally replace file)
+// PUT – update ebook metadata (admin only, supports URL change OR file replace)
 app.put('/api/ebooks/:id', authenticateJWT, (req, res) => {
   if (req.user.role !== 'admin') return res.sendStatus(403);
   uploadEbook(req, res, async (err) => {
     if (err) return res.status(400).json({ ok: false, msg: err.message });
-    const { title, author, category, description } = req.body;
+    const { title, author, category, description, book_url } = req.body;
     const id = req.params.id;
     try {
-      if (req.file) {
-        // Delete old file
-        const [rows] = await db.execute('SELECT file_path FROM ebooks WHERE id=?', [id]);
-        if (rows.length && rows[0].file_path) {
-          const old = path.join(__dirname, rows[0].file_path);
+      const [existing] = await db.execute('SELECT file_path, source_type FROM ebooks WHERE id=?', [id]);
+      if (!existing.length) return res.status(404).json({ ok: false, msg: 'E-book not found.' });
+
+      if (book_url && book_url.trim()) {
+        // ── Switching to / updating URL mode ──
+        // If old record was a file upload, delete the file
+        if (existing[0].source_type === 'upload' && existing[0].file_path) {
+          const old = path.join(__dirname, existing[0].file_path);
+          if (fs.existsSync(old)) fs.unlinkSync(old);
+        }
+        const file_path = book_url.trim();
+        const file_name = book_url.trim().split('/').pop().split('?')[0] || 'ebook-link';
+        await db.execute(
+          'UPDATE ebooks SET title=?,author=?,category=?,description=?,file_path=?,file_name=?,file_size=0,source_type="url" WHERE id=?',
+          [title, author, category, description || '', file_path, file_name, id]
+        );
+      } else if (req.file) {
+        // ── New file upload replacing old ──
+        if (existing[0].source_type === 'upload' && existing[0].file_path) {
+          const old = path.join(__dirname, existing[0].file_path);
           if (fs.existsSync(old)) fs.unlinkSync(old);
         }
         const file_path = '/uploads/ebooks/' + req.file.filename;
         await db.execute(
-          'UPDATE ebooks SET title=?,author=?,category=?,description=?,file_path=?,file_name=?,file_size=? WHERE id=?',
+          'UPDATE ebooks SET title=?,author=?,category=?,description=?,file_path=?,file_name=?,file_size=?,source_type="upload" WHERE id=?',
           [title, author, category, description || '', file_path, req.file.originalname, req.file.size, id]
         );
       } else {
+        // ── Metadata-only update ──
         await db.execute(
           'UPDATE ebooks SET title=?,author=?,category=?,description=? WHERE id=?',
           [title, author, category, description || '', id]

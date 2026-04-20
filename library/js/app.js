@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   Router.register('admin-transactions', renderAdminTransactions);
   Router.register('admin-reports', renderAdminReports);
   Router.register('admin-students', renderAdminStudents);
+  Router.register('admin-ebooks', renderAdminEbooks);
   Router.register('admin-papers', renderAdminQuestionPapers);
 
   // Apply dark mode on startup

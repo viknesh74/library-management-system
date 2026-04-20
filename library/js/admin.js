@@ -26,6 +26,7 @@ function buildAdminLayout(activeSection, content) {
     { id: 'transactions', icon: '🔄', label: 'Transactions', route: 'admin-transactions' },
     { id: 'reports', icon: '📈', label: 'Reports', route: 'admin-reports' },
     { id: 'students', icon: '🎓', label: 'Students', route: 'admin-students' },
+    { id: 'ebooks', icon: '📖', label: 'E-Books', route: 'admin-ebooks' },
     { id: 'papers', icon: '📝', label: 'Question Papers', route: 'admin-papers' },
   ];
 
@@ -1118,3 +1119,200 @@ window.adminDeletePaperImg = async (paperId, imgId) => {
     UI.toast(d.msg || 'Failed to remove image.', 'error');
   }
 };
+
+// ── Admin E-Books ──────────────────────────────────────
+async function renderAdminEbooks() {
+  let ebooks = [];
+  try {
+    const res = await fetch('/api/ebooks', { headers: { 'Authorization': `Bearer ${DB.getToken()}` } });
+    ebooks = await res.json();
+    if (!Array.isArray(ebooks)) ebooks = [];
+  } catch (e) { ebooks = []; }
+
+  function fmtSize(bytes) {
+    if (!bytes || bytes === 0) return '';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function sourceTag(eb) {
+    if (eb.source_type === 'url') {
+      return `<span style="background:rgba(47,128,237,0.12);color:var(--primary);font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;">🔗 URL</span>`;
+    }
+    return `<span style="background:rgba(39,174,96,0.12);color:#27AE60;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;">📁 FILE</span>`;
+  }
+
+  const ebooksHTML = ebooks.length ? ebooks.map(eb => `
+    <div class="admin-book-card" style="position:relative;">
+      <div class="abc-header">
+        <div class="abc-cover" style="background:linear-gradient(135deg,#1565C0,#2F80ED);display:flex;align-items:center;justify-content:center;font-size:2rem;min-width:60px;height:60px;border-radius:10px;">
+          ${eb.source_type === 'url' ? '🔗' : (eb.file_name && eb.file_name.endsWith('.pdf') ? '📕' : eb.file_name && eb.file_name.endsWith('.epub') ? '📗' : '📘')}
+        </div>
+        <div class="abc-info">
+          <div class="abc-title">${eb.title}</div>
+          <div class="abc-author" style="color:var(--text-mod);font-size:0.85rem;">✍️ ${eb.author}</div>
+          <div class="abc-cat" style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+            ${sourceTag(eb)}
+            <span style="font-size:0.75rem;color:var(--text-mod);">${eb.category}${fmtSize(eb.file_size) ? ' · ' + fmtSize(eb.file_size) : ''}</span>
+          </div>
+        </div>
+      </div>
+      ${eb.description ? `<div style="font-size:0.82rem;color:var(--text-mod);margin:6px 0;padding:0 4px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">${eb.description}</div>` : ''}
+      <div class="abc-actions" style="margin-top:8px;">
+        <a href="${eb.file_path}" target="_blank" class="icon-btn blue-btn" title="Open / Read" style="text-decoration:none;display:inline-flex;align-items:center;">👁️</a>
+        <button class="icon-btn blue-btn eb-edit-btn" data-id="${eb.id}" title="Edit">✏️</button>
+        <button class="icon-btn red-btn eb-del-btn" data-id="${eb.id}" data-title="${eb.title.replace(/"/g,'&quot;')}" title="Delete">🗑️</button>
+      </div>
+    </div>`).join('') : UI.emptyState('📖', 'No e-books yet', 'Click "Add E-Book" to get started');
+
+  buildAdminLayout('ebooks', `
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <h1>📖 E-Books Library</h1>
+        <button class="btn btn-primary" id="addEbookBtn">➕ Add E-Book</button>
+      </div>
+      <div style="margin-bottom:1rem;color:var(--text-mod);font-size:0.9rem;">${ebooks.length} e-book${ebooks.length !== 1 ? 's' : ''} in library</div>
+      <div class="admin-book-grid">${ebooksHTML}</div>
+    </div>`);
+
+  document.getElementById('addEbookBtn').onclick = () => showEbookModal(null);
+
+  document.querySelectorAll('.eb-edit-btn').forEach(btn => {
+    btn.onclick = () => {
+      const eb = ebooks.find(e => e.id == btn.dataset.id);
+      if (eb) showEbookModal(eb);
+    };
+  });
+
+  document.querySelectorAll('.eb-del-btn').forEach(btn => {
+    btn.onclick = () => {
+      UI.confirm('Delete E-Book', `Delete "<strong>${btn.dataset.title}</strong>"? This cannot be undone.`, async () => {
+        const r = await fetch(`/api/ebooks/${btn.dataset.id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${DB.getToken()}` }
+        });
+        const d = await r.json();
+        if (d.ok) { UI.toast('E-Book deleted.', 'success'); renderAdminEbooks(); }
+        else UI.toast(d.msg || 'Delete failed.', 'error');
+      });
+    };
+  });
+}
+
+// ── E-Book Add / Edit Modal ────────────────────────────
+function showEbookModal(eb) {
+  const isEdit = !!eb;
+  const CATEGORIES = ['Science','Technology','Engineering','Mathematics','Literature','History','Philosophy','Arts','Medicine','Law','Economics','Other'];
+
+  UI.modal({
+    title: isEdit ? '✏️ Edit E-Book' : '➕ Add E-Book',
+    body: `
+      <div class="form-group">
+        <label>Title *</label>
+        <input type="text" id="ebTitle" value="${eb?.title || ''}" placeholder="Book title"/>
+      </div>
+      <div class="form-group">
+        <label>Author *</label>
+        <input type="text" id="ebAuthor" value="${eb?.author || ''}" placeholder="Author name"/>
+      </div>
+      <div class="form-group">
+        <label>Category *</label>
+        <select id="ebCat">
+          ${CATEGORIES.map(c => `<option value="${c}" ${eb?.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="ebDesc" rows="2" placeholder="Short description">${eb?.description || ''}</textarea>
+      </div>
+
+      <!-- Source toggle tabs -->
+      <div class="form-group">
+        <label>E-Book Source *</label>
+        <div class="tab-bar" style="margin-bottom:0.75rem;">
+          <button type="button" class="tab-btn ${!isEdit || eb?.source_type !== 'url' ? 'active' : ''}" id="tabUploadMode">📁 Upload File</button>
+          <button type="button" class="tab-btn ${isEdit && eb?.source_type === 'url' ? 'active' : ''}" id="tabUrlMode">🔗 URL Link</button>
+        </div>
+
+        <!-- File upload panel -->
+        <div id="panelUpload" style="display:${isEdit && eb?.source_type === 'url' ? 'none' : 'block'}">
+          ${isEdit && eb?.source_type === 'upload' ? `<div style="font-size:0.82rem;color:var(--text-mod);margin-bottom:6px;">Current file: <strong>${eb.file_name}</strong></div>` : ''}
+          <input type="file" id="ebFile" accept=".pdf,.epub,.doc,.docx,application/pdf" style="border:2px dashed var(--border);padding:1rem;border-radius:8px;width:100%;cursor:pointer;"/>
+          <small style="color:var(--text-mod);">PDF, EPUB, DOC/DOCX — max 50 MB${isEdit ? ' (leave blank to keep existing file)' : ''}</small>
+        </div>
+
+        <!-- URL panel -->
+        <div id="panelUrl" style="display:${isEdit && eb?.source_type === 'url' ? 'block' : 'none'}">
+          <input type="url" id="ebUrl" value="${isEdit && eb?.source_type === 'url' ? eb.file_path : ''}" placeholder="https://example.com/book.pdf" style="width:100%;"/>
+          <small style="color:var(--text-mod);">Paste any direct URL to a PDF, EPUB, or online reader page</small>
+        </div>
+      </div>`,
+    actions: [
+      { label: 'Cancel', cls: 'btn-outline' },
+      {
+        label: isEdit ? 'Save Changes' : 'Add E-Book',
+        cls: 'btn-primary',
+        fn: async () => {
+          const title    = document.getElementById('ebTitle').value.trim();
+          const author   = document.getElementById('ebAuthor').value.trim();
+          const category = document.getElementById('ebCat').value;
+          const description = document.getElementById('ebDesc').value.trim();
+          const fileInput   = document.getElementById('ebFile');
+          const urlInput    = document.getElementById('ebUrl');
+          const isUrlMode   = document.getElementById('panelUrl').style.display !== 'none';
+          const bookUrl     = isUrlMode ? urlInput?.value?.trim() : '';
+          const file        = fileInput?.files?.[0];
+
+          if (!title || !author || !category) { UI.toast('Please fill all required fields.', 'error'); return; }
+          if (!isEdit) {
+            if (isUrlMode && !bookUrl) { UI.toast('Please enter a URL.', 'error'); return; }
+            if (!isUrlMode && !file) { UI.toast('Please select a file to upload.', 'error'); return; }
+          }
+
+          const formData = new FormData();
+          formData.append('title', title);
+          formData.append('author', author);
+          formData.append('category', category);
+          formData.append('description', description);
+          if (bookUrl)  formData.append('book_url', bookUrl);
+          if (file)     formData.append('file', file);
+
+          const url    = isEdit ? `/api/ebooks/${eb.id}` : '/api/ebooks';
+          const method = isEdit ? 'PUT' : 'POST';
+          const r = await fetch(url, {
+            method,
+            headers: { 'Authorization': `Bearer ${DB.getToken()}` },
+            body: formData
+          });
+          const d = await r.json();
+          if (d.ok || d.id) {
+            UI.toast(isEdit ? 'E-Book updated! ✓' : 'E-Book added! 📖', 'success');
+            renderAdminEbooks();
+          } else {
+            UI.toast(d.msg || 'Operation failed.', 'error');
+          }
+        }
+      }
+    ]
+  });
+
+  // Tab switching logic
+  setTimeout(() => {
+    const tabUpload = document.getElementById('tabUploadMode');
+    const tabUrl    = document.getElementById('tabUrlMode');
+    const panelUpload = document.getElementById('panelUpload');
+    const panelUrl    = document.getElementById('panelUrl');
+    if (!tabUpload) return;
+
+    tabUpload.onclick = () => {
+      tabUpload.classList.add('active');  tabUrl.classList.remove('active');
+      panelUpload.style.display = 'block'; panelUrl.style.display = 'none';
+    };
+    tabUrl.onclick = () => {
+      tabUrl.classList.add('active');  tabUpload.classList.remove('active');
+      panelUrl.style.display = 'block'; panelUpload.style.display = 'none';
+    };
+  }, 80);
+}
+
