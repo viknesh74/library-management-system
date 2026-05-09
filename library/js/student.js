@@ -19,6 +19,7 @@ function buildStudentLayout(activeSection, content) {
     { id: 'motivation', icon: '💡', label: 'Motivation', route: 'motivation-videos' },
     { id: 'papers', icon: '📝', label: 'Question Papers', route: 'student-question-papers' },
     { id: 'free-courses', icon: '🎓', label: 'Free Courses', route: 'free-courses' },
+    { id: 'daily-news', icon: '📰', label: 'Daily News', route: 'daily-news' },
   ];
 
   app.innerHTML = `
@@ -198,6 +199,11 @@ function renderStudentDashboard() {
             <div class="stile-val">FREE</div>
             <div class="stile-label">Free Courses</div>
           </div>
+          <div class="stat-tile stat-news" id="qcDailyNews">
+            <div class="stile-icon">📰</div>
+            <div class="stile-val">NEWS</div>
+            <div class="stile-label">Daily News</div>
+          </div>
         </div>
 
         ${activeBooks.length ? `
@@ -256,6 +262,7 @@ function renderStudentDashboard() {
   document.getElementById('qcCGPA').onclick = () => Router.navigate('cgpa-calculator');
   document.getElementById('qcMotivation').onclick = () => Router.navigate('motivation-videos');
   document.getElementById('qcFreeCourses').onclick = () => Router.navigate('free-courses');
+  document.getElementById('qcDailyNews').onclick = () => Router.navigate('daily-news');
   const _sB = document.getElementById('seeAllBooks'); if (_sB) _sB.onclick = () => Router.navigate('my-books');
   const _sS = document.getElementById('seeAllSearch'); if (_sS) _sS.onclick = () => Router.navigate('book-search');
 
@@ -1882,3 +1889,388 @@ function renderSimpleCalculator() {
 }
 
 
+
+// ── Daily News ──────────────────────────────────────────────────────────────
+async function renderDailyNews() {
+  // ── Config ──────────────────────────────────────────────────────────────────
+  // GNews public free tier — replace with your own key from https://gnews.io
+  const GNEWS_API_KEY = 'pub_886041573b92bf2a3df9f4de28d72ee4b54b5';
+  const NEWS_CATEGORIES = [
+    { id: 'general',     label: '🌐 Top Stories',      color: '#2F80ED' },
+    { id: 'technology',  label: '💻 Technology',        color: '#9B51E0' },
+    { id: 'education',   label: '🎓 Education',         color: '#27AE60' },
+    { id: 'business',    label: '💼 Placement & Jobs',  color: '#F2994A' },
+    { id: 'science',     label: '🔬 Science',           color: '#EB5757' },
+    { id: 'health',      label: '❤️ Health',            color: '#00897B' },
+  ];
+
+  // ── Curated fallback articles (shown when API is unavailable) ──────────────
+  const FALLBACK_ARTICLES = [
+    { title:'Google DeepMind Unveils Gemini 2.0: A Leap in Multimodal AI', description:'Google DeepMind has launched Gemini 2.0, featuring unprecedented reasoning and multimodal capabilities that process text, images, audio and video natively — signalling a transformative era for AI applications.', image:'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=600&q=80', url:'https://blog.google/technology/google-deepmind/gemini-2/', publishedAt:new Date().toISOString(), source:{name:'Google Blog'}, category:'technology' },
+    { title:'IIT Madras Launches Free Online B.Sc Degree Programme', description:'IIT Madras has opened applications for its fully online BS in Data Science programme. Students can study at their own pace and earn a globally recognised degree from one of India\'s premier institutions.', image:'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=600&q=80', url:'https://www.iitm.ac.in/content/about-bs-degree-programme', publishedAt:new Date().toISOString(), source:{name:'IIT Madras'}, category:'education' },
+    { title:'TCS, Infosys & Wipro Announce 2025 Campus Recruitment Drive', description:"India's top IT giants plan to hire over 1.5 lakh freshers in FY2025–26, with strong demand for full-stack, AI/ML and cloud engineering roles.", image:'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&q=80', url:'https://www.naukri.com/blog/campus-placements-2025/', publishedAt:new Date().toISOString(), source:{name:'Campus Buzz'}, category:'business' },
+    { title:"ISRO's PSLV-C60 Successfully Places SpaDeX Satellites in Orbit", description:'India achieved a new milestone as ISRO successfully demonstrated space docking technology, making India the fourth country in the world to master this advanced capability.', image:'https://images.unsplash.com/photo-1517976487492-5750f3195933?w=600&q=80', url:'https://www.isro.gov.in/PSLVC60.html', publishedAt:new Date().toISOString(), source:{name:'ISRO'}, category:'science' },
+    { title:'WHO Report: Digital Mental Health Apps Can Reduce Anxiety by 30%', description:'A landmark WHO study finds that structured digital wellness programmes significantly reduce anxiety and depression symptoms among college-age students globally.', image:'https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=600&q=80', url:'https://www.who.int/news/item/mental-health-digital', publishedAt:new Date().toISOString(), source:{name:'WHO'}, category:'health' },
+    { title:'PM Modi Launches National Education Policy 2.0 Roadmap', description:'The Union Cabinet has approved the NEP 2.0 implementation roadmap emphasising skill-based learning, multilingualism and digital classrooms across all Indian universities.', image:'https://images.unsplash.com/photo-1588072432836-e10032774350?w=600&q=80', url:'https://www.education.gov.in/nep/about-nep', publishedAt:new Date().toISOString(), source:{name:'Ministry of Education'}, category:'education' },
+    { title:'OpenAI Launches GPT-5 with Reasoning Beyond Human Experts', description:"OpenAI's new GPT-5 model achieves state-of-the-art performance on medical, legal, and engineering benchmarks, signalling a new era in artificial general intelligence.", image:'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=600&q=80', url:'https://openai.com/gpt-5', publishedAt:new Date().toISOString(), source:{name:'OpenAI'}, category:'technology' },
+    { title:'UPSC Civil Services 2025 Notification Released — 1,105 Vacancies', description:'UPSC has released the official notification for Civil Services Examination 2025 with 1,105 vacancies across IAS, IPS and IFS. Last date for application is June 10, 2025.', image:'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80', url:'https://upsc.gov.in', publishedAt:new Date().toISOString(), source:{name:'UPSC'}, category:'general' },
+    { title:'Stock Market Hits Record High — Sensex Crosses 82,000', description:'Indian benchmark indices hit fresh all-time highs with Sensex crossing the 82,000 mark on strong FII inflows and robust quarterly earnings from top IT firms.', image:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80', url:'https://www.bseindia.com', publishedAt:new Date().toISOString(), source:{name:'BSE India'}, category:'general' },
+  ];
+
+  // ── Skeleton ─────────────────────────────────────────────────────────────────
+  const skeletonCards = Array(6).fill(0).map(() => `
+    <div class="dn-card dn-skeleton">
+      <div class="dn-card-img-wrap dn-skel-img"></div>
+      <div class="dn-card-body">
+        <div class="dn-skel-line" style="width:40%;height:14px;margin-bottom:10px;"></div>
+        <div class="dn-skel-line" style="width:90%;height:18px;margin-bottom:6px;"></div>
+        <div class="dn-skel-line" style="width:70%;height:18px;margin-bottom:12px;"></div>
+        <div class="dn-skel-line" style="width:95%;height:12px;margin-bottom:5px;"></div>
+        <div class="dn-skel-line" style="width:60%;height:12px;"></div>
+      </div>
+    </div>`).join('');
+
+  // ── Show skeleton immediately ─────────────────────────────────────────────
+  buildStudentLayout('daily-news', `
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <div><h2>📰 Daily News</h2><p>Fetching latest news for you…</p></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="dn-live-badge"><span class="dn-live-dot"></span> LIVE</div>
+          <button id="dnRefreshBtn" title="Refresh news" style="display:inline-flex;align-items:center;gap:5px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--primary);font-weight:700;font-size:0.78rem;cursor:pointer;transition:all 0.2s;">
+            &#x1F504; Refresh
+          </button>
+        </div>
+      </div>
+      <div class="dn-grid">${skeletonCards}</div>
+    </div>`);
+
+  // ── State ─────────────────────────────────────────────────────────────────
+  let allArticles = [];
+  let activeCategory = 'general';
+  let searchQuery = '';
+  let page = 1;
+  const PAGE_SIZE = 9;
+
+  // ── Fetch news: 3-tier fallback + 1-hour localStorage cache ─────────────
+  // Tier 1: NewsData.io  (pub_XXX key — 200 req/day free)
+  // Tier 2: RSS via rss2json.com  (no key, CORS-safe proxy)
+  // Tier 3: Hardcoded curated fallback
+
+  const CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour per category
+
+  const CAT_MAP = {
+    general:'top', technology:'technology', education:'education',
+    business:'business', science:'science', health:'health',
+  };
+
+  const RSS_MAP = {
+    general:    'https://feeds.feedburner.com/ndtvnews-top-stories',
+    technology: 'https://gadgets.ndtv.com/rss/feeds',
+    education:  'https://timesofindia.indiatimes.com/rss/topic/education',
+    business:   'https://economictimes.indiatimes.com/rssfeedsdefault.cms',
+    science:    'https://timesofindia.indiatimes.com/rss/topic/science',
+    health:     'https://timesofindia.indiatimes.com/rss/topic/health',
+  };
+
+  function _cKey(cat) { return 'dn_v2_' + cat; }
+
+  function _loadCache(cat) {
+    try {
+      const raw = localStorage.getItem(_cKey(cat));
+      if (!raw) return null;
+      const obj = JSON.parse(raw);
+      if (Date.now() - obj.ts < CACHE_TTL_MS) return obj.articles;
+      localStorage.removeItem(_cKey(cat));
+    } catch (e) {}
+    return null;
+  }
+
+  function _saveCache(cat, articles) {
+    try { localStorage.setItem(_cKey(cat), JSON.stringify({ ts: Date.now(), articles })); } catch (e) {}
+  }
+
+  function _cacheTs(cat) {
+    try { return (JSON.parse(localStorage.getItem(_cKey(cat)) || '{}')).ts || null; } catch (e) { return null; }
+  }
+
+  async function fetchNews(cat, forceRefresh) {
+    // ── Cache hit (skip when force-refresh pressed) ─────────────────────
+    if (!forceRefresh) {
+      const cached = _loadCache(cat);
+      if (cached && cached.length) return cached;
+    } else {
+      localStorage.removeItem(_cKey(cat));
+    }
+
+    // ── Tier 1: NewsData.io ────────────────────────────────────────
+    try {
+      const ndUrl = 'https://newsdata.io/api/1/news?apikey=' + GNEWS_API_KEY +
+                    '&language=en&country=in&category=' + (CAT_MAP[cat] || 'top') + '&size=10';
+      const res = await fetch(ndUrl);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'success' && Array.isArray(data.results) && data.results.length) {
+          const arts = data.results
+            .map(a => ({
+              title:       a.title || '',
+              description: a.description || a.content || '',
+              image:       a.image_url || '',
+              url:         a.link || '#',
+              publishedAt: a.pubDate || new Date().toISOString(),
+              source:      { name: a.source_id || 'NewsData' },
+              category:    cat,
+            }))
+            .filter(a => a.title);
+          if (arts.length) { _saveCache(cat, arts); return arts; }
+        }
+      }
+    } catch (e) { /* try tier 2 */ }
+
+    // ── Tier 2: RSS via rss2json ─────────────────────────────────
+    try {
+      const rssUrl = 'https://api.rss2json.com/v1/api.json?rss_url=' +
+                     encodeURIComponent(RSS_MAP[cat] || RSS_MAP.general) + '&count=15';
+      const res = await fetch(rssUrl);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === 'ok' && Array.isArray(data.items) && data.items.length) {
+          const arts = data.items
+            .map(a => ({
+              title:       a.title || '',
+              description: (a.description || '').replace(/<[^>]+>/g, ''),
+              image:       a.thumbnail || (a.enclosure && a.enclosure.link) || '',
+              url:         a.link || '#',
+              publishedAt: a.pubDate || new Date().toISOString(),
+              source:      { name: (data.feed && data.feed.title) || 'RSS' },
+              category:    cat,
+            }))
+            .filter(a => a.title);
+          if (arts.length) { _saveCache(cat, arts); return arts; }
+        }
+      }
+    } catch (e) { /* tier 3 */ }
+
+    // ── Tier 3: Curated fallback ────────────────────────────────
+    const fb = FALLBACK_ARTICLES.filter(a => cat === 'general' || a.category === cat);
+    return fb.length ? fb : FALLBACK_ARTICLES;
+  }
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  function timeAgo(iso) {
+    if (!iso) return 'Today';
+    const m = Math.floor((Date.now() - new Date(iso)) / 60000);
+    if (m < 1) return 'Just now';
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h / 24)}d ago`;
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+  }
+
+  function catColor(cat) { return (NEWS_CATEGORIES.find(c => c.id === cat) || {}).color || '#2F80ED'; }
+
+  function catLabel(cat) {
+    const map = { general:'Top Stories', technology:'Technology', education:'Education', business:'Jobs & Placement', science:'Science', health:'Health' };
+    return map[cat] || cat;
+  }
+
+  // ── Card HTML ─────────────────────────────────────────────────────────────
+  function renderCards(articles) {
+    if (!articles.length) {
+      return `<div class="dn-empty">
+        <div style="font-size:3rem;margin-bottom:1rem;">📭</div>
+        <h3>No news found</h3>
+        <p style="color:var(--text-sec);">Try a different category or search term</p>
+      </div>`;
+    }
+    return articles.map((a, i) => {
+      const img = (a.image && a.image !== 'https://fdn.gsmarena.com/imgroot/static/nophoto.png')
+        ? a.image
+        : `https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80`;
+      const col = catColor(a.category || activeCategory);
+      return `
+      <div class="dn-card animate-fade-in-up" style="animation-delay:${Math.min(i * 0.05, 0.4)}s">
+        <div class="dn-card-img-wrap">
+          <img class="dn-card-img" src="${img}" alt="" loading="lazy"
+            onerror="this.src='https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80'">
+          <div class="dn-card-overlay"></div>
+          <span class="dn-cat-badge" style="background:${col}">${catLabel(a.category || activeCategory)}</span>
+          <span class="dn-time-badge">🕐 ${timeAgo(a.publishedAt)}</span>
+        </div>
+        <div class="dn-card-body">
+          <div class="dn-source">📡 ${a.source?.name || 'News'}</div>
+          <h3 class="dn-title">${a.title}</h3>
+          <p class="dn-desc">${(a.description || '').slice(0, 150)}${(a.description || '').length > 150 ? '…' : ''}</p>
+          <div class="dn-card-footer">
+            <span class="dn-date">📅 ${fmtDate(a.publishedAt)}</span>
+            <a href="${a.url}" target="_blank" rel="noopener noreferrer" class="dn-read-btn">
+              Read More <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Full page render ──────────────────────────────────────────────────────
+  function buildPage(articles) {
+    const filtered = filterArticles(articles);
+    const paged    = filtered.slice(0, page * PAGE_SIZE);
+    const hasMore  = filtered.length > paged.length;
+    const catInfo  = NEWS_CATEGORIES.find(c => c.id === activeCategory) || NEWS_CATEGORIES[0];
+
+    const content = `
+    <div class="admin-page" id="dnPage">
+      <div class="admin-page-header">
+        <div>
+          <h2>📰 Daily News</h2>
+          <p>${articles.length} articles · <span id="dnUpdatedLabel">Updated ${fmtDate(new Date().toISOString())}</span></p>
+        </div>
+        <div class="dn-live-badge"><span class="dn-live-dot"></span> LIVE</div>
+      </div>
+
+      <!-- Hero Banner -->
+      <div class="dn-hero" style="background:linear-gradient(135deg,${catInfo.color}ee,${catInfo.color}88)">
+        <div class="dn-hero-inner">
+          <div>
+            <div class="dn-hero-title">Stay Informed. Stay Ahead. 📡</div>
+            <div class="dn-hero-sub">Education · Technology · Placement · Science · Health · Current Affairs</div>
+          </div>
+          <div class="dn-clock-wrap">
+            <div class="dn-clock" id="dnClock">--:--:--</div>
+            <div class="dn-clock-label">${new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-bar-wrap" style="margin-bottom:1rem;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="dnSearch" placeholder="Search news articles…" value="${searchQuery}">
+        <button class="clear-btn" id="dnClearSearch" style="display:${searchQuery ? 'flex' : 'none'}">✕</button>
+      </div>
+
+      <!-- Category chips -->
+      <div class="category-scroll" id="dnCatBar" style="margin-bottom:1.5rem;">
+        ${NEWS_CATEGORIES.map(cat => `
+          <button class="cat-chip dn-cat-chip${cat.id === activeCategory ? ' active' : ''}" data-cat="${cat.id}"
+            style="${cat.id === activeCategory ? `background:${cat.color};color:#fff;border-color:${cat.color}` : ''}">
+            ${cat.label}
+          </button>`).join('')}
+      </div>
+
+      <!-- Articles grid -->
+      <div class="dn-grid" id="dnGrid">${renderCards(paged)}</div>
+
+      <!-- Load More -->
+      <div id="dnLoadMoreWrap" style="text-align:center;margin:2rem 0;${hasMore ? '' : 'display:none;'}">
+        <button class="btn btn-outline" id="dnLoadMore" style="padding:.75rem 2.5rem;border-radius:30px;font-weight:700;">
+          📄 Load More News
+        </button>
+      </div>
+    </div>`;
+
+    buildStudentLayout('daily-news', content);
+
+    // Live clock
+    function tick() {
+      const el = document.getElementById('dnClock');
+      if (el) el.textContent = new Date().toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+    }
+    tick();
+    if (window._dnTimer) clearInterval(window._dnTimer);
+    window._dnTimer = setInterval(tick, 1000);
+
+    // Refresh button
+    const _rfBtn = document.getElementById('dnRefreshBtn');
+    if (_rfBtn) {
+      // Show last-fetched time
+      const ts = _cacheTs(activeCategory);
+      if (ts) {
+        const lbl = document.getElementById('dnUpdatedLabel');
+        if (lbl) lbl.textContent = 'Updated ' + new Date(ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+      }
+      _rfBtn.onclick = async () => {
+        _rfBtn.disabled = true;
+        _rfBtn.innerHTML = '⏳ Loading…';
+        clearInterval(window._dnTimer);
+        allArticles = await fetchNews(activeCategory, true);
+        if (!allArticles.length) allArticles = FALLBACK_ARTICLES;
+        page = 1; searchQuery = '';
+        buildPage(allArticles);
+      };
+    }
+
+    // Search
+    const srch = document.getElementById('dnSearch');
+    const clrB = document.getElementById('dnClearSearch');
+    if (srch) {
+      srch.oninput = () => {
+        searchQuery = srch.value.trim();
+        clrB.style.display = searchQuery ? 'flex' : 'none';
+        page = 1;
+        const f = filterArticles(allArticles);
+        document.getElementById('dnGrid').innerHTML = renderCards(f.slice(0, PAGE_SIZE));
+        const lm = document.getElementById('dnLoadMoreWrap');
+        if (lm) lm.style.display = f.length > PAGE_SIZE ? '' : 'none';
+      };
+      clrB.onclick = () => {
+        searchQuery = ''; srch.value = ''; clrB.style.display = 'none'; page = 1;
+        document.getElementById('dnGrid').innerHTML = renderCards(allArticles.slice(0, PAGE_SIZE));
+        const lm = document.getElementById('dnLoadMoreWrap');
+        if (lm) lm.style.display = allArticles.length > PAGE_SIZE ? '' : 'none';
+      };
+    }
+
+    // Category chips
+    document.getElementById('dnCatBar')?.querySelectorAll('.dn-cat-chip').forEach(chip => {
+      chip.onclick = async () => {
+        if (chip.dataset.cat === activeCategory) return;
+        activeCategory = chip.dataset.cat;
+        searchQuery = ''; page = 1;
+        // Show skeleton in grid only
+        document.getElementById('dnGrid').innerHTML = skeletonCards;
+        // Reset chip styles
+        document.querySelectorAll('.dn-cat-chip').forEach(c => { c.classList.remove('active'); c.style.cssText = ''; });
+        const ci = NEWS_CATEGORIES.find(c => c.id === activeCategory);
+        chip.classList.add('active');
+        chip.style.background = ci.color; chip.style.color = '#fff'; chip.style.borderColor = ci.color;
+        // Fetch and re-render grid
+        allArticles = await fetchNews(activeCategory);
+        document.getElementById('dnGrid').innerHTML = renderCards(allArticles.slice(0, PAGE_SIZE));
+        const lm = document.getElementById('dnLoadMoreWrap');
+        if (lm) lm.style.display = allArticles.length > PAGE_SIZE ? '' : 'none';
+      };
+    });
+
+    // Load More
+    document.getElementById('dnLoadMore')?.addEventListener('click', () => {
+      page++;
+      const f = filterArticles(allArticles);
+      document.getElementById('dnGrid').innerHTML = renderCards(f.slice(0, page * PAGE_SIZE));
+      const lm = document.getElementById('dnLoadMoreWrap');
+      if (lm) lm.style.display = f.length > page * PAGE_SIZE ? '' : 'none';
+    });
+  }
+
+  function filterArticles(src) {
+    const articles = src || allArticles;
+    if (!searchQuery) return articles;
+    const q = searchQuery.toLowerCase();
+    return articles.filter(a =>
+      (a.title || '').toLowerCase().includes(q) ||
+      (a.description || '').toLowerCase().includes(q) ||
+      (a.source?.name || '').toLowerCase().includes(q)
+    );
+  }
+
+  // ── Kick off ──────────────────────────────────────────────────────────────
+  allArticles = await fetchNews(activeCategory);
+  if (!allArticles.length) allArticles = FALLBACK_ARTICLES;
+  buildPage(allArticles);
+}

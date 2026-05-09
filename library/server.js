@@ -683,6 +683,132 @@ app.delete('/api/ebooks/:id', authenticateJWT, async (req, res) => {
   }
 });
 
+// ══ AI Chat (Gemini) ════════════════════════════════════════
+const https = require('https');
+
+// Helper: call Gemini via Node https (avoids fetch() issues)
+function callGemini(apiKey, model, payload) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify(payload);
+    const options = {
+      hostname: 'generativelanguage.googleapis.com',
+      path: `/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    };
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try { resolve({ status: res.statusCode, data: JSON.parse(data) }); }
+        catch (e) { reject(new Error('Parse error: ' + data.slice(0, 200))); }
+      });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+app.post('/api/chat', authenticateJWT, async (req, res) => {
+  const { messages } = req.body;
+  const GEMINI_KEY = process.env.GEMINI_API_KEY || '';
+
+  if (!GEMINI_KEY || GEMINI_KEY.includes('YOUR_KEY')) {
+    return res.json({ reply: '⚠️ Gemini API key not configured.\n\nAdd your free key to **.env**:\n```\nGEMINI_API_KEY=AIzaSy...\n```\nGet one free at: https://aistudio.google.com/app/apikey' });
+  }
+
+  try {
+    // Live library context from DB
+    const [books]    = await db.query('SELECT title, author, category, available_copies, total_copies FROM books LIMIT 50');
+    const [students] = await db.query('SELECT COUNT(*) as cnt FROM students');
+    const regNum = req.user.register_number || '';
+    let issuedBooks = [], overdueBooks = [];
+    if (regNum) {
+      const [txRows] = await db.query(
+        'SELECT b.title, t.return_date, t.status FROM transactions t JOIN books b ON t.book_id=b.book_id WHERE t.register_number=? AND t.status IN ("issued","overdue")',
+        [regNum]
+      );
+      issuedBooks = txRows.filter(t => t.status === 'issued');
+      overdueBooks = txRows.filter(t => t.status === 'overdue');
+    }
+
+    const bookList = books.map(b =>
+      `- "${b.title}" by ${b.author} [${b.category}] — ${b.available_copies}/${b.total_copies} available`
+    ).join('\n');
+
+    const systemPrompt = `You are LibraBot, a smart and friendly AI assistant for the Smart Library Management System.
+
+## Library Info
+- Total books: ${books.length} | Students: ${students[0]?.cnt || 0}
+- Loan: 14 days | Fine: ₹5/day overdue
+
+## Book Collection
+${bookList || 'No books yet.'}
+
+## Student
+- Name: ${req.user.name} | Reg: ${req.user.register_number}
+- Dept: ${req.user.department} | Email: ${req.user.email}
+- Issued: ${issuedBooks.map(t => `"${t.title}" due ${t.return_date}`).join(', ') || 'None'}
+- Overdue: ${overdueBooks.map(t => `"${t.title}"`).join(', ') || 'None'}
+
+## Portal Sections
+Dashboard, My Books, Search, History, E-Books, CGPA Calculator, Question Papers, Free Courses, Daily News, Motivation Videos
+
+## Rules
+1. Answer ANY question (general knowledge, science, coding, math, etc.)
+2. For library questions, use the live data above.
+3. Be friendly, concise, use markdown formatting.
+4. Today: ${new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' })}`;
+
+    // Build Gemini-format contents
+    const contents = (messages || []).map(m => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }]
+    }));
+
+    const geminiPayload = {
+      system_instruction: { parts: [{ text: systemPrompt }] },
+      contents,
+      generationConfig: { temperature: 0.75, maxOutputTokens: 800, topP: 0.95 },
+    };
+
+    // Try models in order: lite first (faster/higher quota), then full
+    const MODELS = ['gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-2.0-flash'];
+    let reply = null;
+
+    for (const model of MODELS) {
+      try {
+        const result = await callGemini(GEMINI_KEY, model, geminiPayload);
+        if (result.status === 200) {
+          reply = result.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (reply) break;
+        } else if (result.status === 429) {
+          continue; // Rate limit — try next model
+        } else {
+          console.error(`Gemini ${model} error ${result.status}:`, JSON.stringify(result.data).slice(0, 200));
+          continue;
+        }
+      } catch (e) {
+        console.error(`Gemini ${model} exception:`, e.message);
+        continue;
+      }
+    }
+
+    if (!reply) {
+      return res.json({ reply: '⚠️ AI is temporarily busy (rate limit). Please wait a moment and try again.\n\n💡 **Tip**: Free tier allows ~15 requests/minute.' });
+    }
+
+    res.json({ reply });
+  } catch (err) {
+    console.error('Chat endpoint error:', err.message);
+    res.json({ reply: '⚠️ Something went wrong on the server. Please try again.' });
+  }
+});
+
 // ── Catch-all: serve frontend ─────────────────────────────
 app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
