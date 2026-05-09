@@ -18,6 +18,7 @@ function buildStudentLayout(activeSection, content) {
     { id: 'profile', icon: '👤', label: 'Profile', route: 'student-profile' },
     { id: 'motivation', icon: '💡', label: 'Motivation', route: 'motivation-videos' },
     { id: 'papers', icon: '📝', label: 'Question Papers', route: 'student-question-papers' },
+    { id: 'free-courses', icon: '🎓', label: 'Free Courses', route: 'free-courses' },
   ];
 
   app.innerHTML = `
@@ -192,6 +193,11 @@ function renderStudentDashboard() {
             <div class="stile-val">6</div>
             <div class="stile-label">Motivation</div>
           </div>
+          <div class="stat-tile stat-free" id="qcFreeCourses">
+            <div class="stile-icon">🎓</div>
+            <div class="stile-val">FREE</div>
+            <div class="stile-label">Free Courses</div>
+          </div>
         </div>
 
         ${activeBooks.length ? `
@@ -249,6 +255,7 @@ function renderStudentDashboard() {
   document.getElementById('qcEbooks').onclick = () => Router.navigate('student-ebooks');
   document.getElementById('qcCGPA').onclick = () => Router.navigate('cgpa-calculator');
   document.getElementById('qcMotivation').onclick = () => Router.navigate('motivation-videos');
+  document.getElementById('qcFreeCourses').onclick = () => Router.navigate('free-courses');
   const _sB = document.getElementById('seeAllBooks'); if (_sB) _sB.onclick = () => Router.navigate('my-books');
   const _sS = document.getElementById('seeAllSearch'); if (_sS) _sS.onclick = () => Router.navigate('book-search');
 
@@ -720,6 +727,101 @@ window.openMotivationVideo = (videoId) => {
   iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
   modal.style.display = 'flex';
 };
+
+// ── Free Courses ──────────────────────────────────────────
+function renderFreeCourses() {
+  const FREE_COURSES = [
+    { company:'Google',      logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=google.com',          color:'linear-gradient(135deg,#4285F4,#34A853)', title:'Google IT Support Professional Certificate',      category:'IT & Networking', platform:'Coursera (Audit Free)',    duration:'6 months',  level:'Beginner',     url:'https://www.coursera.org/professional-certificates/google-it-support',                                                                                   tags:['IT','Networking','Support'] },
+    { company:'Google',      logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=google.com',          color:'linear-gradient(135deg,#4285F4,#34A853)', title:'Google UX Design Professional Certificate',        category:'Design',          platform:'Coursera (Audit Free)',    duration:'6 months',  level:'Beginner',     url:'https://www.coursera.org/professional-certificates/google-ux-design',                                                                                    tags:['UX','Design','Figma'] },
+    { company:'Google',      logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=google.com',          color:'linear-gradient(135deg,#4285F4,#34A853)', title:'Google Data Analytics Professional Certificate',    category:'Data Science',    platform:'Coursera (Audit Free)',    duration:'6 months',  level:'Beginner',     url:'https://www.coursera.org/professional-certificates/google-data-analytics',                                                                               tags:['Data','SQL','Analytics'] },
+    { company:'Meta',        logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=meta.com',            color:'linear-gradient(135deg,#0082FB,#00B4FF)', title:'Meta Front-End Developer Professional Certificate', category:'Web Development', platform:'Coursera (Audit Free)',    duration:'7 months',  level:'Beginner',     url:'https://www.coursera.org/professional-certificates/meta-front-end-developer',                                                                            tags:['React','HTML','CSS','JS'] },
+    { company:'Meta',        logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=meta.com',            color:'linear-gradient(135deg,#0082FB,#00B4FF)', title:'Meta Back-End Developer Professional Certificate',  category:'Web Development', platform:'Coursera (Audit Free)',    duration:'8 months',  level:'Beginner',     url:'https://www.coursera.org/professional-certificates/meta-back-end-developer',                                                                             tags:['Python','Django','APIs'] },
+    { company:'IBM',         logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=ibm.com',             color:'linear-gradient(135deg,#1F70C1,#054ADA)', title:'IBM Data Science Professional Certificate',         category:'Data Science',    platform:'Coursera (Audit Free)',    duration:'10 months', level:'Beginner',     url:'https://www.coursera.org/professional-certificates/ibm-data-science',                                                                                    tags:['Python','ML','Data'] },
+    { company:'IBM',         logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=ibm.com',             color:'linear-gradient(135deg,#1F70C1,#054ADA)', title:'IBM Full Stack Software Developer',                 category:'Web Development', platform:'Coursera (Audit Free)',    duration:'12 months', level:'Intermediate', url:'https://www.coursera.org/professional-certificates/ibm-full-stack-cloud-developer',                                                                       tags:['Cloud','Docker','Kubernetes'] },
+    { company:'Microsoft',   logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=microsoft.com',       color:'linear-gradient(135deg,#00A4EF,#7FBA00)', title:'Microsoft Azure AI Fundamentals',                   category:'AI & Cloud',      platform:'Microsoft Learn (Free)',   duration:'5 hours',   level:'Beginner',     url:'https://learn.microsoft.com/en-us/training/paths/get-started-with-artificial-intelligence-on-azure/',                                                   tags:['Azure','AI','Cloud'] },
+    { company:'Microsoft',   logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=microsoft.com',       color:'linear-gradient(135deg,#00A4EF,#7FBA00)', title:'Microsoft Power BI Data Analyst',                   category:'Data Science',    platform:'Coursera (Audit Free)',    duration:'5 months',  level:'Beginner',     url:'https://www.coursera.org/professional-certificates/microsoft-power-bi-data-analyst',                                                                     tags:['Power BI','Data','Analytics'] },
+    { company:'Amazon AWS',  logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=aws.amazon.com',          color:'linear-gradient(135deg,#FF9900,#FF6600)', title:'AWS Cloud Practitioner Essentials',                 category:'Cloud',           platform:'AWS Skill Builder (Free)', duration:'6 hours',   level:'Beginner',     url:'https://explore.skillbuilder.aws/learn/course/external/view/elearning/134/aws-cloud-practitioner-essentials',                                           tags:['AWS','Cloud','DevOps'] },
+    { company:'Amazon AWS',  logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=aws.amazon.com',          color:'linear-gradient(135deg,#FF9900,#FF6600)', title:'Machine Learning Foundations on AWS',               category:'AI & Cloud',      platform:'AWS Skill Builder (Free)', duration:'8 hours',   level:'Beginner',     url:'https://explore.skillbuilder.aws/learn/course/external/view/elearning/1094/machine-learning-foundations-on-aws',                                       tags:['ML','AWS','AI'] },
+    { company:'Cisco',       logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=cisco.com',           color:'linear-gradient(135deg,#1BA0D7,#005073)', title:'Cisco Networking Basics',                           category:'IT & Networking', platform:'Cisco NetAcad (Free)',     duration:'22 hours',  level:'Beginner',     url:'https://www.netacad.com/courses/networking/networking-basics',                                                                                           tags:['Networking','CCNA','IT'] },
+    { company:'Cisco',       logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=cisco.com',           color:'linear-gradient(135deg,#1BA0D7,#005073)', title:'Cisco Cybersecurity Essentials',                    category:'Cybersecurity',   platform:'Cisco NetAcad (Free)',     duration:'30 hours',  level:'Beginner',     url:'https://www.netacad.com/courses/cybersecurity/cybersecurity-essentials',                                                                                 tags:['Security','Cyber','Networking'] },
+    { company:'Harvard',     logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=harvard.edu',         color:'linear-gradient(135deg,#A51C30,#C42B3F)', title:'CS50: Introduction to Computer Science',            category:'Programming',     platform:'edX (Free Audit)',         duration:'12 weeks',  level:'Beginner',     url:'https://www.edx.org/learn/computer-science/harvard-university-cs50-s-introduction-to-computer-science',                                                 tags:['C','Python','CS Fundamentals'] },
+    { company:'Harvard',     logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=harvard.edu',         color:'linear-gradient(135deg,#A51C30,#C42B3F)', title:'CS50 AI with Python',                              category:'AI & Cloud',      platform:'edX (Free Audit)',         duration:'7 weeks',   level:'Intermediate', url:'https://www.edx.org/learn/artificial-intelligence/harvard-university-cs50-s-introduction-to-artificial-intelligence-with-python',                       tags:['AI','Python','ML'] },
+    { company:'Stanford',    logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=stanford.edu',        color:'linear-gradient(135deg,#8C1515,#B83A4D)', title:'Machine Learning Specialization',                   category:'AI & Cloud',      platform:'Coursera (Audit Free)',    duration:'3 months',  level:'Intermediate', url:'https://www.coursera.org/specializations/machine-learning-introduction',                                                                                 tags:['ML','AI','Python'] },
+    { company:'freeCodeCamp',logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=freecodecamp.org',   color:'linear-gradient(135deg,#0A0A23,#1b1b32)', title:'Responsive Web Design Certification',               category:'Web Development', platform:'freeCodeCamp (Free)',      duration:'300 hours', level:'Beginner',     url:'https://www.freecodecamp.org/learn/2022/responsive-web-design/',                                                                                        tags:['HTML','CSS','Web'] },
+    { company:'freeCodeCamp',logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=freecodecamp.org',   color:'linear-gradient(135deg,#0A0A23,#1b1b32)', title:'JavaScript Algorithms & Data Structures',           category:'Programming',     platform:'freeCodeCamp (Free)',      duration:'300 hours', level:'Intermediate', url:'https://www.freecodecamp.org/learn/javascript-algorithms-and-data-structures/',                                                                          tags:['JavaScript','DSA','Algorithms'] },
+    { company:'NPTEL',       logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=nptel.ac.in',             color:'linear-gradient(135deg,#FF671F,#046A38)', title:'Programming in Java',                               category:'Programming',     platform:'NPTEL (Free)',             duration:'12 weeks',  level:'Beginner',     url:'https://nptel.ac.in/courses/106105191',                                                                                                                  tags:['Java','OOP','Programming'] },
+    { company:'NPTEL',       logoUrl:'https://www.google.com/s2/favicons?sz=64&domain=nptel.ac.in',             color:'linear-gradient(135deg,#FF671F,#046A38)', title:'Database Management System',                        category:'Data Science',    platform:'NPTEL (Free)',             duration:'12 weeks',  level:'Intermediate', url:'https://nptel.ac.in/courses/106105175',                                                                                                                  tags:['DBMS','SQL','Database'] },
+  ];
+
+  const CATEGORIES = ['All', ...new Set(FREE_COURSES.map(c => c.category))];
+  let activeCat = 'All';
+
+  function buildGrid(cat) {
+    const list = cat === 'All' ? FREE_COURSES : FREE_COURSES.filter(c => c.category === cat);
+    return list.map((c, i) => `
+      <a href="${c.url}" target="_blank" rel="noopener noreferrer" class="fc-card" id="fcc-${i}">
+        <div class="fc-header" style="background:${c.color}">
+          <div class="fc-logo-wrap">
+            <img class="fc-logo-img" src="${c.logoUrl}" alt="${c.company} logo"
+              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <span class="fc-logo-fallback" style="display:none">${c.company.charAt(0)}</span>
+          </div>
+          <div class="fc-company-badge">${c.company}</div>
+        </div>
+        <div class="fc-body">
+          <div class="fc-category-tag">${c.category}</div>
+          <h3 class="fc-title">${c.title}</h3>
+          <div class="fc-meta">
+            <span class="fc-meta-item">🏛️ ${c.platform}</span>
+            <span class="fc-meta-item">⏱ ${c.duration}</span>
+            <span class="fc-level fc-level-${c.level.toLowerCase().replace(/\s+/g,'-')}">${c.level}</span>
+          </div>
+          <div class="fc-tags">${c.tags.map(t => `<span class="fc-tag">${t}</span>`).join('')}</div>
+          <div class="fc-enroll-btn">🎓 Enroll Free →</div>
+        </div>
+      </a>`).join('');
+  }
+
+  const content = `
+    <div class="admin-page">
+      <div class="admin-page-header">
+        <div>
+          <h2>🎓 Free Courses</h2>
+          <p>Curated free courses from top companies &amp; universities worldwide</p>
+        </div>
+        <span class="fc-count-badge">${FREE_COURSES.length} Courses</span>
+      </div>
+      <div class="screen-body" style="padding:0;">
+        <div class="fc-hero">
+          <div class="fc-hero-inner">
+            <span class="fc-hero-icon">🌐</span>
+            <div>
+              <div class="fc-hero-title">Learn from the Best — For Free</div>
+              <div class="fc-hero-sub">Google · Meta · IBM · Microsoft · AWS · Cisco · Harvard · Stanford · NPTEL</div>
+            </div>
+          </div>
+        </div>
+        <div class="category-scroll" id="fcCatBar" style="margin-bottom:1.5rem;">
+          ${CATEGORIES.map(cat => `
+            <button class="cat-chip fc-cat-chip${cat==='All'?' active':''}" data-cat="${cat}">
+              ${cat==='All' ? '📚 All' : cat}
+            </button>`).join('')}
+        </div>
+        <div class="fc-grid" id="fcGrid">${buildGrid('All')}</div>
+      </div>
+    </div>`;
+
+  buildStudentLayout('free-courses', content);
+
+  document.getElementById('fcCatBar').querySelectorAll('.fc-cat-chip').forEach(chip => {
+    chip.onclick = () => {
+      document.querySelectorAll('.fc-cat-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      activeCat = chip.dataset.cat;
+      document.getElementById('fcGrid').innerHTML = buildGrid(activeCat);
+    };
+  });
+}
 
 // ── Question Papers Data ────────────────
 const QUESTION_PAPERS = [
